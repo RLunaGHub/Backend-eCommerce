@@ -1,31 +1,73 @@
 // Herramientas generales
 import express from 'express';
+import {engine} from 'express-handlebars';
+import { Server } from 'socket.io';
+import  {_dirname } from './path.js';
+import path from 'path';
 import routerProd from './routes/products.routes.js';
 import routerCart from './routes/cart.routes.js';
-import { _dirname } from './path.js';
-
+import { ProductManager } from './controllers/ProductManager.js';
 
 const app = express()
 const PORT = 8080;
 
+const productManager = new ProductManager('./src/models/products.json');
+
+//Server
+const server = app.listen(PORT, () => {
+	console.log(`Servidor desde puerto: ${PORT}`);
+	console.log(`http://localhost:${PORT}`);
+});
+
+const io = new Server(server);
+
 //Middlewares
 app.use(express.json()) 
-app.use(express.urlencoded ({ extended: true })) // Para trabajar con url´s muy largas
+app.use(express.urlencoded ({ extended: true })); // Para trabajar con url´s muy largas
+app.engine('handlebars', engine()) //Defino que voy a trabajar con hbs y guardo la config
+app.set('view engine', 'handlebars')
+app.set('views', path.resolve( _dirname, './views'));
+
+const mensajes = [];
+
+// Socket.io
+io.on('connection', socket => {
+	console.log('Conexión con Socket.io');
+
+	socket.on('load', async () => {
+		const products = await productManager.getProducts();
+		socket.emit('products', products);
+	});
+
+	socket.on('newProduct', async product => {
+		await productManager.addProduct(product);
+		const products = await productManager.getProducts();
+		socket.emit('products', products);
+	});
+});
+// 	socket.on('mensaje', info => {
+// 		console.log(info);
+// 		mensajes.push(info);
+// 		io.emit('mensajes', mensajes);
+// 	});
+// });
 
 //Routes
 app.use('/static', express.static(`${_dirname}/public`));
 app.use('/api/products', routerProd);
 app.use('/api/carts', routerCart);
 
-app.get('/', (req,res)=>{
-	res.status(400).send(`<h1>Welcome to the jungle ♫♫</h1>`)
-})
-//Server
-app.listen(PORT, () =>{
-    console.log(`Server on port: ${PORT}`);
-    //console.log(`http://localhost:${PORT}`);
-    console.log(`Express server listening at http://localhost:${PORT}/static`);
-	console.log(`Express server listening at http://localhost:${PORT}/api/products`);
-	console.log(`Express server listening at http://localhost:${PORT}/api/products/1`);
-	console.log(`Express server listening at http://localhost:${PORT}/api/carts/1`);
+app.get('/static', (req, res) => {
+	res.render('index', {
+		rutaCSS: 'index',
+		rutaJS: 'index',
+	});
 });
+
+app.get('/static/realtimeproducts', (req, res) => {
+	res.render('realTimeProducts', {
+		rutaCSS: 'realTimeProducts',
+		rutaJS: 'realTimeProducts',
+	});
+});
+
