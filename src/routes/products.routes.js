@@ -2,52 +2,81 @@
 // .routes es la ruta a utilizar por convención en la comisión 
 import { Router } from 'express';
 import { ProductManager } from '../controllers/ProductManager.js';
+import productModel from '../models/products.models.js';
 
 const routerProd = Router();
 const productManager = new ProductManager('./src/models/products.json');
 
-//Traigo todos los productos - método asincrónico - tengo límite
 routerProd.get('/', async (req, res) => {
 	const { limit } = req.query;
-
-	const prods = await productManager.getProducts();
-	const productos = prods.slice(0, limit);
-
-	res.status(200).send(productos);
+	try {
+		const prods = await productModel.find().limit(limit);
+		res.status(200).send({ resultado: 'OK', message: prods });
+	} catch (error) {
+		res.status(400).send({ error: `Error al consultar productos: ${error}` });
+	}
 });
 
-// Consultar por ID 
 routerProd.get('/:pid', async (req, res) => {
 	const { pid } = req.params;
-	const prod = await productManager.getProductById(parseInt(pid));
-
-	prod ? res.status(200).send(prod) : res.status(404).send('No existe producto');
+	try {
+		const prod = await productModel.findById(pid);
+		prod
+			? res.status(200).send({ resultado: 'OK', message: prod })
+			: res.status(404).send({ resultado: 'Not Found', message: prod });
+	} catch (error) {
+		res.status(400).send({ error: `Error al consultar producto: ${error}` });
+	}
 });
 
-//Método post 
 routerProd.post('/', async (req, res) => {
-	const confirmacion = await productManager.addProduct(req.body);
-	confirmacion
-		? res.status(200).send('Producto creado')
-		: res.status(400).send('Este producto ya existe');
+	const { title, description, stock, code, price, category } = req.body;
+
+	try {
+		const respuesta = await productModel.create({
+			title,
+			description,
+			category,
+			stock,
+			code,
+			price,
+		});
+		res.status(200).send({ resultado: 'OK', message: respuesta });
+	} catch (error) {
+		res.status(400).send({ error: `Error al crear producto: ${error}` });
+	}
 });
 
-//Método put 
 routerProd.put('/:pid', async (req, res) => {
 	const { pid } = req.params;
-	const confirmacion = await productManager.updateProducts(parseInt(pid), req.body);
-	confirmacion
-		? res.status(200).send('Producto actualizado')
-		: res.status(400).send('Ya existente el producto');
+	const { title, description, stock, code, price, category, status } = req.body;
+	try {
+		const prod = await productModel.findByIdAndUpdate(pid, {
+			title,
+			description,
+			category,
+			stock,
+			code,
+			price,
+		});
+		prod
+			? res.status(200).send({ resultado: 'OK', message: prod })
+			: res.status(404).send({ resultado: 'Not Found', message: prod });
+	} catch (error) {
+		res.status(400).send({ error: `Error al actualizar producto: ${error}` });
+	}
 });
 
-//Método delete c/ID 
 routerProd.delete('/:pid', async (req, res) => {
 	const { pid } = req.params;
-	const confirmacion = await productManager.deleteProduct(parseInt(pid));
-	confirmacion
-		? res.status(200).send('Producto eliminado')
-		: res.status(404).send('Producto no encontrado');
+	try {
+		const prod = await productModel.findByIdAndDelete(pid);
+		prod
+			? res.status(200).send({ resultado: 'OK', message: prod })
+			: res.status(404).send({ resultado: 'Not Found', message: prod });
+	} catch (error) {
+		res.status(400).send({ error: `Error al eliminar producto: ${error}` });
+	}
 });
 
 export default routerProd;

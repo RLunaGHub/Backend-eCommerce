@@ -4,14 +4,16 @@ import {engine} from 'express-handlebars';
 import { Server } from 'socket.io';
 import  {_dirname } from './path.js';
 import path from 'path';
-import routerProd from './routes/products.routes.js';
-import routerCart from './routes/cart.routes.js';
-import { ProductManager } from './controllers/ProductManager.js';
+import mongoose from "mongoose";
+
+import routerProd from "./routes/products.routes.js";
+import routerCart from "./routes/carts.routes.js"; //s
+import routerMessage from "./routes/messages.routes.js"; // s
+import messageModel from "./models/messages.models.js" //s
+
 
 const app = express()
 const PORT = 8080;
-
-const productManager = new ProductManager('./src/models/products.json');
 
 //Server
 const server = app.listen(PORT, () => {
@@ -28,34 +30,45 @@ app.engine('handlebars', engine()) //Defino que voy a trabajar con hbs y guardo 
 app.set('view engine', 'handlebars')
 app.set('views', path.resolve( _dirname, './views'));
 
-const mensajes = [];
 
 // Socket.io
 io.on('connection', socket => {
 	console.log('Conexión con Socket.io');
 
 	socket.on('load', async () => {
-		const products = await productManager.getProducts();
+		const products = await productModel.find();
 		socket.emit('products', products);
 	});
 
 	socket.on('newProduct', async product => {
-		await productManager.addProduct(product);
-		const products = await productManager.getProducts();
+		await productModel.create(product);
+		const products = await productModel.find();
+
 		socket.emit('products', products);
 	});
+
+	socket.on('mensaje', async info => {
+		const { email, message } = info;
+		await messageModel.create({
+			email,
+			message,
+		});
+		const messages = await messageModel.find();
+
+		io.emit('mensajes', messages);
+	});
 });
-// 	socket.on('mensaje', info => {
-// 		console.log(info);
-// 		mensajes.push(info);
-// 		io.emit('mensajes', mensajes);
-// 	});
-// });
+
+//MongoDB Atlas connection
+mongoose.connect('mongodb+srv://ramirolunacoder:coder1234@backend-coderhouse.u3f8jgn.mongodb.net/?retryWrites=true&w=majority')
+.then(()=> console.log('DB connected'))
+.catch((error)=> console.log(`Error connecting to MongoDB Atlas: ${error}`))
 
 //Routes
 app.use('/static', express.static(`${_dirname}/public`));
 app.use('/api/products', routerProd);
 app.use('/api/carts', routerCart);
+app.use('/api/messages', routerMessage);
 
 app.get('/static', (req, res) => {
 	res.render('index', {
