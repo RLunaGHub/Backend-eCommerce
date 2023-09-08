@@ -10,7 +10,7 @@ import routerProd from "./routes/products.routes.js";
 import routerCart from "./routes/carts.routes.js"; //s
 import routerMessage from "./routes/messages.routes.js"; // s
 import productModel from './models/products.models.js';
-import messageModel from './models/message.models.js';
+import messageModel from './models/messages.models.js';
 
 
 const app = express()
