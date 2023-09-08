@@ -65,25 +65,25 @@ io.on('connection', socket => {
 });
 
 
-// //Routes
-// app.use('/static', express.static(`${_dirname}/public`));
-// app.use('/api/products', routerProd);
-// app.use('/api/carts', routerCart);
-// app.use('/api/messages', routerMessage);
+//Routes
+app.use('/static', express.static(`${_dirname}/public`));
+app.use('/api/products', routerProd);
+app.use('/api/carts', routerCart);
+app.use('/api/messages', routerMessage);
 
-// app.get('/static', (req, res) => {
-// 	res.render('index', {
-// 		rutaCSS: 'index',
-// 		rutaJS: 'index',
-// 	});
-// });
+app.get('/static', (req, res) => {
+	res.render('index', {
+		rutaCSS: 'index',
+		rutaJS: 'index',
+	});
+});
 
-// app.get('/static/realtimeproducts', (req, res) => {
-// 	res.render('realTimeProducts', {
-// 		rutaCSS: 'realTimeProducts',
-// 		rutaJS: 'realTimeProducts',
-// 	});
-// });
+app.get('/static/realtimeproducts', (req, res) => {
+	res.render('realTimeProducts', {
+		rutaCSS: 'realTimeProducts',
+		rutaJS: 'realTimeProducts',
+	});
+});
 
 app.get('/static/chat', (req, res) => {
 	res.render('chat', {
