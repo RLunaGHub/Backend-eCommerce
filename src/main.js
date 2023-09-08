@@ -9,7 +9,8 @@ import mongoose from "mongoose";
 import routerProd from "./routes/products.routes.js";
 import routerCart from "./routes/carts.routes.js"; //s
 import routerMessage from "./routes/messages.routes.js"; // s
-import messageModel from "./models/messages.models.js" //s
+import productModel from './models/products.models.js';
+import messageModel from './models/message.models.js';
 
 
 const app = express()
@@ -30,6 +31,10 @@ app.engine('handlebars', engine()) //Defino que voy a trabajar con hbs y guardo 
 app.set('view engine', 'handlebars')
 app.set('views', path.resolve( _dirname, './views'));
 
+//MongoDB Atlas connection
+mongoose.connect('mongodb+srv://ramirolunacoder:coder1234@backend-coderhouse.u3f8jgn.mongodb.net/?retryWrites=true&w=majority')
+.then(()=> console.log('DB connected'))
+.catch((error)=> console.log(`Error connecting to MongoDB Atlas: ${error}`))
 
 // Socket.io
 io.on('connection', socket => {
@@ -59,28 +64,30 @@ io.on('connection', socket => {
 	});
 });
 
-//MongoDB Atlas connection
-mongoose.connect('mongodb+srv://ramirolunacoder:coder1234@backend-coderhouse.u3f8jgn.mongodb.net/?retryWrites=true&w=majority')
-.then(()=> console.log('DB connected'))
-.catch((error)=> console.log(`Error connecting to MongoDB Atlas: ${error}`))
 
-//Routes
-app.use('/static', express.static(`${_dirname}/public`));
-app.use('/api/products', routerProd);
-app.use('/api/carts', routerCart);
-app.use('/api/messages', routerMessage);
+// //Routes
+// app.use('/static', express.static(`${_dirname}/public`));
+// app.use('/api/products', routerProd);
+// app.use('/api/carts', routerCart);
+// app.use('/api/messages', routerMessage);
 
-app.get('/static', (req, res) => {
-	res.render('index', {
-		rutaCSS: 'index',
-		rutaJS: 'index',
+// app.get('/static', (req, res) => {
+// 	res.render('index', {
+// 		rutaCSS: 'index',
+// 		rutaJS: 'index',
+// 	});
+// });
+
+// app.get('/static/realtimeproducts', (req, res) => {
+// 	res.render('realTimeProducts', {
+// 		rutaCSS: 'realTimeProducts',
+// 		rutaJS: 'realTimeProducts',
+// 	});
+// });
+
+app.get('/static/chat', (req, res) => {
+	res.render('chat', {
+		rutaCSS: 'chat',
+		rutaJS: 'chat',
 	});
 });
-
-app.get('/static/realtimeproducts', (req, res) => {
-	res.render('realTimeProducts', {
-		rutaCSS: 'realTimeProducts',
-		rutaJS: 'realTimeProducts',
-	});
-});
-
