@@ -1,10 +1,10 @@
 const socket = io();
 
-const productsContainer = document.getElementById('container');
+const form = document.querySelector('#formProduct');
+const productsContainer = document.querySelector('#products-container');
 
 socket.emit('load');
 
-const form = document.getElementById('formProduct');
 form.addEventListener('submit', event => {
 	event.preventDefault();
 	const dataForm = new FormData(event.target);
@@ -20,14 +20,14 @@ socket.on('products', products => {
 	productsContainer.innerHTML = '';
 	products.forEach(prod => {
 		productsContainer.innerHTML += `
-    <div class="container">
-      <p>Id: ${prod.id}</p>
+    <div class="product-container">
       <p>Title: ${prod.title}</p>
       <p>Description: ${prod.description}</p>
+      <p>Category: ${prod.category}</p>
       <p>Price: ${prod.price}</p>
-      <p>Status: ${prod.status}</p>
       <p>Code: ${prod.code}</p>
       <p>Stock: ${prod.stock}</p>
+      <p>Status: ${prod.status}</p>
 
     </div>
   

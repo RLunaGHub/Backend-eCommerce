@@ -22,7 +22,7 @@ routerMessage.post('/', async (req, res) => {
 		});
 		res.status(200).send({ resultado: 'OK', message: respuesta });
 	} catch (error) {
-		res.status(400).send({ error: `Error al crear producto: ${error}` });
+		res.status(400).send({ error: `Error: ${error}` });
 	}
 });
 

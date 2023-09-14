@@ -11,7 +11,7 @@ import routerCart from "./routes/carts.routes.js"; //s
 import routerMessage from "./routes/messages.routes.js"; // s
 import productModel from './models/products.models.js';
 import messageModel from './models/messages.models.js';
-
+import cartModel from './models/carts.models.js';
 
 const app = express()
 const PORT = 8080;
@@ -41,8 +41,41 @@ io.on('connection', socket => {
 	console.log('Conexión con Socket.io');
 
 	socket.on('load', async () => {
-		const products = await productModel.find();
-		socket.emit('products', products);
+		const data = await productModel.paginate({}, { limit: 5 });
+		socket.emit('products', data);
+	});
+
+	socket.on('previousPage', async page => {
+		const data = await productModel.paginate({}, { limit: 5, page: page });
+		socket.emit('products', data);
+	});
+
+	socket.on('nextPage', async page => {
+		const data = await productModel.paginate({}, { limit: 5, page: page });
+		socket.emit('products', data);
+	});
+
+	socket.on('addProduct', async data => {
+		const { pid, cartId } = data;
+		if (cartId) {
+			const cart = await cartModel.findById(cartId);
+			const productExists = cart.products.find(prod => prod.id_prod == pid);
+			productExists
+				? productExists.quantity++
+				: cart.products.push({ id_prod: pid, quantity: 1 });
+			await cart.save();
+			socket.emit('success', cartId);
+		} else {
+			const cart = await cartModel.create({});
+			cart.products.push({ id_prod: pid, quantity: 1 });
+			await cart.save();
+			socket.emit('success', cart._id.toString());
+		}
+	});
+
+	socket.on('loadCart', async cid => {
+		const cart = await cartModel.findById(cid);
+		socket.emit('cartProducts', cart.products);
 	});
 
 	socket.on('newProduct', async product => {
@@ -60,10 +93,9 @@ io.on('connection', socket => {
 		});
 		const messages = await messageModel.find();
 
-		io.emit('mensajes', messages);
+		socket.emit('mensajes', messages);
 	});
 });
-
 
 //Routes
 app.use('/static', express.static(`${_dirname}/public`));
@@ -91,3 +123,21 @@ app.get('/static/chat', (req, res) => {
 		rutaJS: 'chat',
 	});
 });
+
+app.get('/static/products', (req, res) => {
+	res.render('products', {
+		rutaCSS: 'products',
+		rutaJS: 'products',
+	});
+});
+
+app.get('/static/carts/:cid', (req, res) => {
+	res.render('carts', {
+		rutaCSS: 'carts',
+		rutaJS: 'carts',
+	});
+});
+
+app.use('/api/products', routerProd); // defino que mi app va a usar lo que venga en routerProd para la ruta que defina
+app.use('/api/carts', routerCart);
+app.use('/api/messages', routerMessage);

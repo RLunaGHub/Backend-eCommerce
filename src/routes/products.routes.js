@@ -1,19 +1,30 @@
 // definición de rutas de la app / products / carts /
 // .routes es la ruta a utilizar por convención en la comisión 
 import { Router } from 'express';
-import { ProductManager } from '../controllers/ProductManager.js';
 import productModel from '../models/products.models.js';
 
 const routerProd = Router();
-const productManager = new ProductManager('./src/models/products.json');
-
 routerProd.get('/', async (req, res) => {
-	const { limit } = req.query;
+	const { limit, page, sort, category, status } = req.query;
+	let sortOption;
+	sort == 'asc' && (sortOption = 'price');
+	sort == 'desc' && (sortOption = '-price');
+
+	const options = {
+		limit: limit || 10,
+		page: page || 1,
+		sort: sortOption || null,
+	};
+
+	const query = {};
+	category && (query.category = category);
+	status && (query.status = status);
+
 	try {
-		const prods = await productModel.find().limit(limit);
+		const prods = await productModel.paginate(query, options);
 		res.status(200).send({ resultado: 'OK', message: prods });
 	} catch (error) {
-		res.status(400).send({ error: `Error al consultar productos: ${error}` });
+		res.status(400).send({ error: `Error en la consulta de productos: ${error}` });
 	}
 });
 
@@ -63,7 +74,7 @@ routerProd.put('/:pid', async (req, res) => {
 			? res.status(200).send({ resultado: 'OK', message: prod })
 			: res.status(404).send({ resultado: 'Not Found', message: prod });
 	} catch (error) {
-		res.status(400).send({ error: `Error al actualizar producto: ${error}` });
+		res.status(400).send({ error: `Error al actualizar el producto: ${error}` });
 	}
 });
 
@@ -75,7 +86,7 @@ routerProd.delete('/:pid', async (req, res) => {
 			? res.status(200).send({ resultado: 'OK', message: prod })
 			: res.status(404).send({ resultado: 'Not Found', message: prod });
 	} catch (error) {
-		res.status(400).send({ error: `Error al eliminar producto: ${error}` });
+		res.status(400).send({ error: `Error al eliminar el producto: ${error}` });
 	}
 });
 

@@ -6,8 +6,8 @@ const valInput = document.querySelector('#chatBox');
 
 let email;
 Swal.fire({
-	title: 'Identificación de usuario',
-	text: 'Por favor ingrese su email',
+	title: 'Nombre de usuario',
+	text: 'Ingrese su email',
 	input: 'text',
 
 	inputValidator: valor => {

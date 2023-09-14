@@ -1,21 +1,39 @@
-import { Router } from "express";
-import cartModel from "../models/carts.models.js";
+import { Schema, model } from 'mongoose';
 
-const cartRouter = Router()
+const cartSchema = new Schema({
+	products: {
+		type: [
+			{
+				id_prod: {
+					type: Schema.Types.ObjectId, // ID autogenerado Mongo
+					ref: 'products',
+					required: true,
+				},
+				quantity: {
+					type: Number,
+					required: true,
+				},
+			},
+		],
+		default: function () {
+			return [];
+		},
+	},
+});
 
-cartRouter.post('/:cid/products/:pid', async (req, res) => {
-    const { cid, pid } = req.params
-    const { quantity } = req.body
-    try {
-        const cart = await cartModel.findById(cid)
-        if (cart) {
-            cart.products.push({ id_prod: pid, quantity: quantity })
-            const respuesta = await cartModel.findByIdAndUpdate(cid, cart) //Actualizo el carrito de mi BDD con el nuevo producto
-            res.status(200).send({ respuesta: 'OK', mensaje: respuesta })
-        }
-    } catch (e) {
-        res.status(400).send({ error: e })
-    }
-})
+/*
+const res = await cartModel
+ 	.findOne({ _id: '64f7bb1bf65706e542ebc0ab' })
+ 	.populate('products.id_prod');
+ console.log(JSON.stringify(res));
 
-export default cartRouter
+Como buscar para que te traiga la info de la referencia
+*/
+
+cartSchema.pre('find', function () {
+	this.populate('products.id_prod');
+});
+
+const cartModel = model('carts', cartSchema);
+
+export default cartModel;
