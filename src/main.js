@@ -138,6 +138,6 @@ app.get('/static/carts/:cid', (req, res) => {
 	});
 });
 
-app.use('/api/products', routerProd); // defino que mi app va a usar lo que venga en routerProd para la ruta que defina
+app.use('/api/products', routerProd); 
 app.use('/api/carts', routerCart);
 app.use('/api/messages', routerMessage);

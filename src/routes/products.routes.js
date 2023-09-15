@@ -40,6 +40,7 @@ routerProd.get('/:pid', async (req, res) => {
 	}
 });
 
+
 routerProd.post('/', async (req, res) => {
 	const { title, description, stock, code, price, category } = req.body;
 
@@ -57,6 +58,19 @@ routerProd.post('/', async (req, res) => {
 		res.status(400).send({ error: `Error al crear producto: ${error}` });
 	}
 });
+
+// {
+//     "title": "Doble",
+//     "description": "cola",
+//     "stock": 5,
+//     "code": "D456",
+//      "price": 100,
+//      "category": "gaseosas"
+
+        
+//     }
+
+
 
 routerProd.put('/:pid', async (req, res) => {
 	const { pid } = req.params;
@@ -77,7 +91,7 @@ routerProd.put('/:pid', async (req, res) => {
 		res.status(400).send({ error: `Error al actualizar el producto: ${error}` });
 	}
 });
-
+// _id 64fa38849dd6cd4d0367d0dd - price: 20000
 routerProd.delete('/:pid', async (req, res) => {
 	const { pid } = req.params;
 	try {
@@ -89,5 +103,6 @@ routerProd.delete('/:pid', async (req, res) => {
 		res.status(400).send({ error: `Error al eliminar el producto: ${error}` });
 	}
 });
+// http://localhost:8080/api/products/6503ab80b6d6aff05631605d
 
 export default routerProd;

@@ -13,7 +13,7 @@ routerCart.get('/', async (req, res) => {
 		res.status(400).send({ error: `Error al consultar el carrito: ${error}` });
 	}
 });
-
+// http://localhost:8080/api/carts/650387088698eb6737c4bcc4/
 routerCart.get('/:cid', async (req, res) => {
 	const { cid } = req.params;
 	try {
@@ -58,7 +58,7 @@ routerCart.put('/:cid/product/:pid', async (req, res) => {
 			res.status(404).send({ resultado: 'Cart Not Found', message: cart });
 		}
 	} catch (error) {
-		res.status(400).send({ error: `Error al crear producto: ${error}` });
+		res.status(400).send({ error: `Error al crear el producto: ${error}` });
 	}
 });
 
