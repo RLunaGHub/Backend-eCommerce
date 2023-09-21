@@ -1,10 +1,15 @@
 // Herramientas generales
+import 'dotenv/config'; // VARIABLES DE ENTORNO
+
 import express from 'express';
+import session from 'express-session';
 import {engine} from 'express-handlebars';
 import { Server } from 'socket.io';
 import  {_dirname } from './path.js';
 import path from 'path';
 import mongoose from "mongoose";
+import cookieParser from 'cookie-parser';
+import MongoStore from 'connect-mongo';
 
 import routerProd from "./routes/products.routes.js";
 import routerCart from "./routes/carts.routes.js"; //s
@@ -12,9 +17,16 @@ import routerMessage from "./routes/messages.routes.js"; // s
 import productModel from './models/products.models.js';
 import messageModel from './models/messages.models.js';
 import cartModel from './models/carts.models.js';
+import routerUser from './routes/users.routes.js';
+import routerSession from './routes/sessions.routes.js';
+import userModel from './models/users.models.js';
+
 
 const app = express()
 const PORT = 8080;
+
+let cartId;
+
 
 //Server
 const server = app.listen(PORT, () => {
@@ -25,14 +37,37 @@ const server = app.listen(PORT, () => {
 const io = new Server(server);
 
 //Middlewares
+function auth(req, res, next) {
+	if (req.session.emial === 'adminCoder@coder.com') {
+		return next();
+	} else {
+		res.send('No tiene acceso permitido');
+	}
+}
+
 app.use(express.json()) 
 app.use(express.urlencoded ({ extended: true })); // Para trabajar con url´s muy largas
 app.engine('handlebars', engine()) //Defino que voy a trabajar con hbs y guardo la config
 app.set('view engine', 'handlebars')
 app.set('views', path.resolve( _dirname, './views'));
+app.use(cookieParser(process.env.SIGNED_COOKIE)); // Firmar cookies 
+app.use(
+	session({
+		// configuración de la sesión - conexión con BDD
+		store: MongoStore.create({
+			mongoUrl: process.env.MONGO_URL,
+			mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
+			ttl: 90, // Time to live - duración
+		}),
+		secret: process.env.SESSION_SECRET,
+		resave: true,
+		saveUninitialized: true,
+	})
+);
 
-//MongoDB Atlas connection
-mongoose.connect('mongodb+srv://ramirolunacoder:coder1234@backend-coderhouse.u3f8jgn.mongodb.net/?retryWrites=true&w=majority')
+
+//MongoDB Atlas connection (ya conectará al iniciar sesión)
+mongoose.connect(process.env.MONGO_URL)
 .then(()=> console.log('DB connected'))
 .catch((error)=> console.log(`Error connecting to MongoDB Atlas: ${error}`))
 
@@ -73,9 +108,13 @@ io.on('connection', socket => {
 		}
 	});
 
-	socket.on('loadCart', async cid => {
-		const cart = await cartModel.findById(cid);
-		socket.emit('cartProducts', cart.products);
+	socket.on('loadCart', async () => {
+		const cart = await cartModel.findById(cartId).populate('products.id_prod');
+		if (cart) {
+			socket.emit('cartProducts', { products: cart.products, cid: cartId });
+		} else {
+			socket.emit('cartProducts', false);
+		}
 	});
 
 	socket.on('newProduct', async product => {
@@ -95,13 +134,76 @@ io.on('connection', socket => {
 
 		socket.emit('mensajes', messages);
 	});
+
+	socket.on('submit login', async data => {
+		const { email, password } = data;
+
+		const user = await userModel.findOne({ email: email });
+		if (user) {
+			if (user.password === password) {
+				session.login = true;
+				socket.emit('login response', user);
+			} else {
+				socket.emit('login response', false);
+			}
+		} else {
+			socket.emit('login response', false);
+		}
+	});
 });
+
+// Cookies
+
+app.get('/setCookie', (req, res) => {
+	
+	res.cookie('CookieCookie', 'Esto es el valor de una cookie', { maxAge: 300000 }).send(
+		'Cookie creada'
+	);
+	
+});
+
+app.get('/getCookie', (req, res) => {
+	// res.send(req.cookies); // Consulto todas las cookies
+	res.send(req.signedCookies); // Cookies firmadas
+});
+
+// Session
+
+app.get('/session', (req, res) => {
+	
+	if (req.session.counter) {
+		req.session.counter++;
+		res.send(`Ha entrado ${req.session.counter} veces a la app`);
+	} else {
+		
+		req.session.counter = 1;
+		res.send('Bienvenido a la app');
+	}
+});
+
+app.get('/login', (req, res) => {
+	const { email, password } = req.body;
+
+	req.session.email = email;
+	req.session.password = password;
+	return res.send('Usuario logueado');
+});
+
+app.get('/admin', auth, (req, res) => {
+	// pasa primero por la autenticación, si me autentico, continuo con la ejecución
+	res.send('Sos admin');
+});
+
+app.get('/logout', (req, res) => {
+	// de esta forma salgo de la sesion
+	req.session.destroy(error => {
+		error ? console.log(error) : res.send('Salió de la sesión');
+	});
+});
+
 
 //Routes
 app.use('/static', express.static(`${_dirname}/public`));
-app.use('/api/products', routerProd);
-app.use('/api/carts', routerCart);
-app.use('/api/messages', routerMessage);
 
 app.get('/static', (req, res) => {
 	res.render('index', {
@@ -141,3 +243,5 @@ app.get('/static/carts/:cid', (req, res) => {
 app.use('/api/products', routerProd); 
 app.use('/api/carts', routerCart);
 app.use('/api/messages', routerMessage);
+app.use('/api/users', routerUser);
+app.use('/api/sessions', routerSession);
