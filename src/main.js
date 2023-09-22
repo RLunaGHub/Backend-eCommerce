@@ -1,24 +1,24 @@
 import 'dotenv/config'; // Variables de entorno
 // Herramientas generales
-import express from 'express';
-import session from 'express-session';
-import {engine} from 'express-handlebars';
-import { Server } from 'socket.io';
-import  {_dirname } from './path.js';
-import path from 'path';
-import mongoose from "mongoose";
-import cookieParser from 'cookie-parser';
-import MongoStore from 'connect-mongo';
+import express from 'express'; //s
+import session from 'express-session'; //s
+import {engine} from 'express-handlebars'; //s
+import { Server } from 'socket.io'; //s
+import  {_dirname } from './path.js'; //s
+import path from 'path'; //s
+import mongoose from "mongoose"; //s
+import cookieParser from 'cookie-parser'; //s
+import MongoStore from 'connect-mongo'; //s
 
-import routerProd from "./routes/products.routes.js";
+import routerProd from "./routes/products.routes.js"; //s
 import routerCart from "./routes/carts.routes.js"; //s
-import routerMessage from "./routes/messages.routes.js"; // s
-import productModel from './models/products.models.js';
-import messageModel from './models/messages.models.js';
-import cartModel from './models/carts.models.js';
-import routerUser from './routes/users.routes.js';
-import routerSession from './routes/sessions.routes.js';
-import userModel from './models/users.models.js';
+import routerMessage from "./routes/messages.routes.js"; //s
+import productModel from './models/products.models.js'; //s
+import messageModel from './models/messages.models.js'; //s
+import routerHandlebars from './routes/handlebars.routes.js';
+import routerUser from './routes/users.routes.js'; //s
+import routerSession from './routes/sessions.routes.js'; //s
+import userModel from './models/users.models.js'; //s
 
 const app = express()
 const PORT = 8080;
@@ -169,77 +169,42 @@ app.get('/getCookie', (req, res) => {
 
 // Session
 
-app.get('/session', (req, res) => {
+// app.get('/session', (req, res) => {
 	
-	if (req.session.counter) {
-		req.session.counter++;
-		res.send(`Ha entrado ${req.session.counter} veces a la app`);
-	} else {
+// 	if (req.session.counter) {
+// 		req.session.counter++;
+// 		res.send(`Ha entrado ${req.session.counter} veces a la app`);
+// 	} else {
 		
-		req.session.counter = 1;
-		res.send('Bienvenido a la app');
-	}
-});
+// 		req.session.counter = 1;
+// 		res.send('Bienvenido a la app');
+// 	}
+// });
 
-app.get('/login', (req, res) => {
-	const { email, password } = req.body;
+// app.get('/login', (req, res) => {
+// 	const { email, password } = req.body;
 
-	req.session.email = email;
-	req.session.password = password;
-	return res.send('Usuario logueado');
-});
+// 	req.session.email = email;
+// 	req.session.password = password;
+// 	return res.send('Usuario logueado');
+// });
 
-app.get('/admin', auth, (req, res) => {
-	// pasa primero por la autenticación, si me autentico, continuo con la ejecución
-	res.send('Admin logueado');
-});
+// app.get('/admin', auth, (req, res) => {
+// 	// pasa primero por la autenticación, si me autentico, continuo con la ejecución
+// 	res.send('Admin logueado');
+// });
 
-app.get('/logout', (req, res) => {
-	// de esta forma salgo de la sesion
-	req.session.destroy(error => {
-		error ? console.log(error) : res.send('Sesión cerrada');
-	});
-});
+// app.get('/logout', (req, res) => {
+// 	// de esta forma salgo de la sesion
+// 	req.session.destroy(error => {
+// 		error ? console.log(error) : res.send('Sesión cerrada');
+// 	});
+// });
 
 
 //Routes
 app.use('/static', express.static(`${_dirname}/public`));
 app.use('/static', routerHandlebars);
-
-app.get('/static', (req, res) => {
-	res.render('index', {
-		rutaCSS: 'index',
-		rutaJS: 'index',
-	});
-});
-
-app.get('/static/realtimeproducts', (req, res) => {
-	res.render('realTimeProducts', {
-		rutaCSS: 'realTimeProducts',
-		rutaJS: 'realTimeProducts',
-	});
-});
-
-app.get('/static/chat', (req, res) => {
-	res.render('chat', {
-		rutaCSS: 'chat',
-		rutaJS: 'chat',
-	});
-});
-
-app.get('/static/products', (req, res) => {
-	res.render('products', {
-		rutaCSS: 'products',
-		rutaJS: 'products',
-	});
-});
-
-app.get('/static/carts/:cid', (req, res) => {
-	res.render('carts', {
-		rutaCSS: 'carts',
-		rutaJS: 'carts',
-	});
-});
 
 app.use('/api/products', routerProd); 
 app.use('/api/carts', routerCart);

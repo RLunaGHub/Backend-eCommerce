@@ -2,7 +2,7 @@
 
 <main>
 
-	<form id='formLogin'>
+	<form method='POST' action='/api/sessions/login' id='formLogin'>
 		<label for='email'>Email</label>
 		<input type='email' name='email' required />
 
@@ -11,5 +11,6 @@
 
 		<button type='submit'>Log In</button>
 	</form>
+	<p>Estás a un solo paso <a href='http://localhost:8080/static/register'>Registrese</a></p>
 
 </main>
