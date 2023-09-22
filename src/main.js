@@ -1,6 +1,5 @@
+import 'dotenv/config'; // Variables de entorno
 // Herramientas generales
-import 'dotenv/config'; // VARIABLES DE ENTORNO
-
 import express from 'express';
 import session from 'express-session';
 import {engine} from 'express-handlebars';
@@ -21,12 +20,8 @@ import routerUser from './routes/users.routes.js';
 import routerSession from './routes/sessions.routes.js';
 import userModel from './models/users.models.js';
 
-
 const app = express()
 const PORT = 8080;
-
-let cartId;
-
 
 //Server
 const server = app.listen(PORT, () => {
@@ -38,7 +33,7 @@ const io = new Server(server);
 
 //Middlewares
 function auth(req, res, next) {
-	if (req.session.emial === 'adminCoder@coder.com') {
+	if (req.session.email === 'adminCoder@coder.com') {
 		return next();
 	} else {
 		res.send('No tiene acceso permitido');
@@ -135,19 +130,24 @@ io.on('connection', socket => {
 		socket.emit('mensajes', messages);
 	});
 
-	socket.on('submit login', async data => {
-		const { email, password } = data;
+	socket.on('submit register', async user => {
+		const { email } = user;
+		const userExists = await userModel.findOne({ email: email });
 
-		const user = await userModel.findOne({ email: email });
-		if (user) {
-			if (user.password === password) {
-				session.login = true;
-				socket.emit('login response', user);
-			} else {
-				socket.emit('login response', false);
-			}
+		if (!userExists) {
+			await userModel.create(user);
+			socket.emit('register response', true);
 		} else {
-			socket.emit('login response', false);
+			socket.emit('register response', false);
+		}
+	});
+
+	socket.on('logout', () => {
+		console.log(session.login);
+		if (session.login) {
+			console.log(session);
+			session.destroy();
+			socket.emit('logoutOk');
 		}
 	});
 });
@@ -191,19 +191,20 @@ app.get('/login', (req, res) => {
 
 app.get('/admin', auth, (req, res) => {
 	// pasa primero por la autenticación, si me autentico, continuo con la ejecución
-	res.send('Sos admin');
+	res.send('Admin logueado');
 });
 
 app.get('/logout', (req, res) => {
 	// de esta forma salgo de la sesion
 	req.session.destroy(error => {
-		error ? console.log(error) : res.send('Salió de la sesión');
+		error ? console.log(error) : res.send('Sesión cerrada');
 	});
 });
 
 
 //Routes
 app.use('/static', express.static(`${_dirname}/public`));
+app.use('/static', routerHandlebars);
 
 app.get('/static', (req, res) => {
 	res.render('index', {

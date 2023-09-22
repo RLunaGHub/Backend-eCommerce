@@ -1,5 +1,7 @@
 main {
 	display: flex;
+	flex-direction: column;
+	align-items: center;
 	justify-content: center;
 	gap: 40px;
 	width: 100vw;
@@ -27,10 +29,4 @@ form button {
 	margin: 20px auto;
 	width: 150px;
 	height: 40px;
-}
-
-.container {
-	width: 400px;
-	margin-bottom: 8px;
-	border-bottom: 1px solid black;
 }
