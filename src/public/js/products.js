@@ -1,6 +1,6 @@
 const socket = io();
 
-const productsContainer = document.querySelector('#products-container');
+const productsContainer = document.querySelector('#container');
 const pageNumber = document.querySelector('#page-number');
 const previousButton = document.querySelector('#prev-page-button');
 const nextButton = document.querySelector('#next-page-button');
@@ -17,7 +17,7 @@ socket.on('products', data => {
 	products.forEach(prod => {
 		pid = prod._id;
 		productsContainer.innerHTML += `
-    <div class="product-container">
+    <div class="container">
 			<div class="data-container">
       <p>Title: ${prod.title}</p>
       <p>Description: ${prod.description}</p>
@@ -64,4 +64,16 @@ socket.on('success', cid => {
 	Swal.fire({
 		title: 'Producto agregado',
 	});
+});
+
+logoutButton.addEventListener('click', async () => {
+	const res = await fetch('http://localhost:8080/api/sessions/logout');
+	const data = await res.json();
+	if (data.resultado === 'logout exitoso') {
+		Swal.fire({
+			title: 'Sesión cerrada',
+		}).then(() => {
+			window.location.href = '/static/home';
+		});
+	}
 });

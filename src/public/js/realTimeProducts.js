@@ -1,7 +1,7 @@
 const socket = io();
 
 const form = document.querySelector('#formProduct');
-const productsContainer = document.querySelector('#products-container');
+const productsContainer = document.querySelector('#container');
 
 socket.emit('load');
 
@@ -20,7 +20,7 @@ socket.on('products', products => {
 	productsContainer.innerHTML = '';
 	products.forEach(prod => {
 		productsContainer.innerHTML += `
-    <div class="product-container">
+    <div class="container">
       <p>Title: ${prod.title}</p>
       <p>Description: ${prod.description}</p>
       <p>Category: ${prod.category}</p>
