@@ -1,4 +1,5 @@
-import 'dotenv/config'; // Variables de entorno
+// Variables de entorno
+import 'dotenv/config'; 
 // Herramientas generales
 import express from 'express'; //s
 import session from 'express-session'; //s
