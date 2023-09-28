@@ -10,6 +10,8 @@ import path from 'path'; //s
 import mongoose from "mongoose"; //s
 import cookieParser from 'cookie-parser'; //s
 import MongoStore from 'connect-mongo'; //s
+import passport from 'passport';
+import initializePassport from './config/config.js';
 
 import routerProd from "./routes/products.routes.js"; //s
 import routerCart from "./routes/carts.routes.js"; //s
