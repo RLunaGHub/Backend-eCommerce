@@ -11,8 +11,7 @@ import mongoose from "mongoose"; //s
 import cookieParser from 'cookie-parser'; //s
 import MongoStore from 'connect-mongo'; //s
 import passport from 'passport';
-import initializePassport from './config/config.js';
-
+import initializePassport from './config/passport.js';
 import routerProd from "./routes/products.routes.js"; //s
 import routerCart from "./routes/carts.routes.js"; //s
 import routerMessage from "./routes/messages.routes.js"; //s
@@ -63,6 +62,10 @@ app.use(
 	})
 );
 
+// Passport
+initializePassport();
+app.use(passport.initialize());
+app.use(passport.session());
 
 //MongoDB Atlas connection (ya conectará al iniciar sesión)
 mongoose.connect(process.env.MONGO_URL)
@@ -166,7 +169,7 @@ app.get('/setCookie', (req, res) => {
 });
 
 app.get('/getCookie', (req, res) => {
-	// res.send(req.cookies); // Consulto todas las cookies
+	res.send(req.cookies); // Consulto todas las cookies
 	res.send(req.signedCookies); // Cookies firmadas
 });
 
