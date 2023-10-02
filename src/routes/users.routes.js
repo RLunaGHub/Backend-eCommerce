@@ -4,14 +4,14 @@ import passport from 'passport';
 
 const routerUser = Router();
 
-routerUser.post('/login', passport.authenticate('register'), async (req, res) => {
+routerUser.post('/', passport.authenticate('register'), async (req, res) => {
 	try {
 		if (!req.user) {
 			return res.status(400).send({ mensaje: 'Usuario existente' });
 		}
 
-		return res.status(200).send({ mensaje: 'Usuario creado' });
-		res.redirect('/static/products?info=${req.user.first_name}'); //Redirect
+		
+		return res.redirect('../../static/home'); //Redirect
 	} catch (error) {
 		res.status(500).send({ mensaje: `Error al crear el usuario ${error}` });
 	}

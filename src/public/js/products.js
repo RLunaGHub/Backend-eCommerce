@@ -5,6 +5,7 @@ const pageNumber = document.querySelector('#page-number');
 const previousButton = document.querySelector('#prev-page-button');
 const nextButton = document.querySelector('#next-page-button');
 const mensaje = document.querySelector('#bienvenida');
+const logoutButton = document.querySelector('#logout-button');
 
 let page;
 let cartId;

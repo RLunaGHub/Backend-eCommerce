@@ -1,31 +1,31 @@
 // Variables de entorno
 import 'dotenv/config'; 
 // Herramientas generales
-import express from 'express'; //s
-import session from 'express-session'; //s
-import {engine} from 'express-handlebars'; //s
-import { Server } from 'socket.io'; //s
-import  {_dirname } from './path.js'; //s
-import path from 'path'; //s
-import mongoose from "mongoose"; //s
-import cookieParser from 'cookie-parser'; //s
-import MongoStore from 'connect-mongo'; //s
-import passport from 'passport';
-import initializePassport from './config/passport.js';
-import routerProd from "./routes/products.routes.js"; //s
-import routerCart from "./routes/carts.routes.js"; //s
-import routerMessage from "./routes/messages.routes.js"; //s
-import productModel from './models/products.models.js'; //s
-import messageModel from './models/messages.models.js'; //s
-import routerHandlebars from './routes/handlebars.routes.js';
-import routerUser from './routes/users.routes.js'; //s
-import routerSession from './routes/sessions.routes.js'; //s
-import userModel from './models/users.models.js'; //s
+import express from 'express'; //v
+import session from 'express-session'; //v
+import {engine} from 'express-handlebars'; //v
+import { Server } from 'socket.io'; //v
+import  {_dirname } from './path.js'; //v
+import path from 'path'; //v
+import mongoose from "mongoose"; //v
+import cookieParser from 'cookie-parser'; //v
+import MongoStore from 'connect-mongo'; //v
+import passport from 'passport'; //v
+import initializePassport from './config/passport.js'; //v
+import routerProd from "./routes/products.routes.js"; //v
+import routerCart from "./routes/carts.routes.js"; //v
+import routerMessage from "./routes/messages.routes.js"; //v
+import productModel from './models/products.models.js'; 
+import messageModel from './models/messages.models.js'; //v
+import routerHandlebars from './routes/handlebars.routes.js';//v
+import routerUser from './routes/users.routes.js'; //v
+import routerSession from './routes/sessions.routes.js'; //v
+import userModel from './models/users.models.js'; //v
 
-const app = express()
+const app = express();
 const PORT = 8080;
 
-//Server
+// Server
 const server = app.listen(PORT, () => {
 	console.log(`Servidor desde puerto: ${PORT}`);
 	console.log(`http://localhost:${PORT}`);
@@ -34,79 +34,53 @@ const server = app.listen(PORT, () => {
 const io = new Server(server);
 
 //Middlewares
-function auth(req, res, next) {
-	if (req.session.email === 'adminCoder@coder.com') {
-		return next();
-	} else {
-		res.send('No tiene acceso permitido');
-	}
-}
+// function auth(req, res, next) {
+// 	if (req.session.emial === 'admin@admin.com') {
+// 		return next();
+// 	} else {
+// 		res.send('No tenés acceso a este contenido');
+// 	}
+// }
 
-app.use(express.json()) 
-app.use(express.urlencoded ({ extended: true })); // Para trabajar con url´s muy largas
-app.engine('handlebars', engine()) //Defino que voy a trabajar con hbs y guardo la config
-app.set('view engine', 'handlebars')
-app.set('views', path.resolve( _dirname, './views'));
-app.use(cookieParser(process.env.SIGNED_COOKIE)); // Firmar cookies 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser(process.env.SIGNED_COOKIE)); // firmo la cookie para que si se modifica la cookie no la acepte / lea
 app.use(
 	session({
-		// configuración de la sesión - conexión con BDD
+		// configuración 
 		store: MongoStore.create({
 			mongoUrl: process.env.MONGO_URL,
 			mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
-			ttl: 90, // Time to live - duración
+			ttl: 90, // Time to live - duración en mseg
 		}),
 		secret: process.env.SESSION_SECRET,
 		resave: true,
 		saveUninitialized: true,
 	})
 );
+app.engine('handlebars', engine()); //defino a handlebars como motor de plantillas
+app.set('view engine', 'handlebars');
+app.set('views', path.resolve(_dirname, './views'));
 
 // Passport
 initializePassport();
 app.use(passport.initialize());
 app.use(passport.session());
 
-//MongoDB Atlas connection (ya conectará al iniciar sesión)
-mongoose.connect(process.env.MONGO_URL)
-.then(()=> console.log('DB connected'))
-.catch((error)=> console.log(`Error connecting to MongoDB Atlas: ${error}`))
 
-// Socket.io
+mongoose
+	.connect(process.env.MONGO_URL)
+	.then(() => console.log('DB conectada'))
+	.catch(error => console.log(`Error en conexión a MongoDB Atlas:  ${error}`));
+
+// Conexión con socket.io
+
 io.on('connection', socket => {
 	console.log('Conexión con Socket.io');
 
 	socket.on('load', async () => {
 		const data = await productModel.paginate({}, { limit: 5 });
 		socket.emit('products', data);
-	});
-
-	socket.on('previousPage', async page => {
-		const data = await productModel.paginate({}, { limit: 5, page: page });
-		socket.emit('products', data);
-	});
-
-	socket.on('nextPage', async page => {
-		const data = await productModel.paginate({}, { limit: 5, page: page });
-		socket.emit('products', data);
-	});
-
-	socket.on('addProduct', async data => {
-		const { pid, cartId } = data;
-		if (cartId) {
-			const cart = await cartModel.findById(cartId);
-			const productExists = cart.products.find(prod => prod.id_prod == pid);
-			productExists
-				? productExists.quantity++
-				: cart.products.push({ id_prod: pid, quantity: 1 });
-			await cart.save();
-			socket.emit('success', cartId);
-		} else {
-			const cart = await cartModel.create({});
-			cart.products.push({ id_prod: pid, quantity: 1 });
-			await cart.save();
-			socket.emit('success', cart._id.toString());
-		}
 	});
 
 	socket.on('loadCart', async () => {
@@ -135,84 +109,13 @@ io.on('connection', socket => {
 
 		socket.emit('mensajes', messages);
 	});
-
-	socket.on('submit register', async user => {
-		const { email } = user;
-		const userExists = await userModel.findOne({ email: email });
-
-		if (!userExists) {
-			await userModel.create(user);
-			socket.emit('register response', true);
-		} else {
-			socket.emit('register response', false);
-		}
-	});
-
-	socket.on('logout', () => {
-		console.log(session.login);
-		if (session.login) {
-			console.log(session);
-			session.destroy();
-			socket.emit('logoutOk');
-		}
-	});
 });
 
-// Cookies
-
-app.get('/setCookie', (req, res) => {
-	
-	res.cookie('CookieCookie', 'Esto es el valor de una cookie', { maxAge: 300000 }).send(
-		'Cookie creada'
-	);
-	
-});
-
-app.get('/getCookie', (req, res) => {
-	res.send(req.cookies); // Consulto todas las cookies
-	res.send(req.signedCookies); // Cookies firmadas
-});
-
-// Session
-
-// app.get('/session', (req, res) => {
-	
-// 	if (req.session.counter) {
-// 		req.session.counter++;
-// 		res.send(`Ha entrado ${req.session.counter} veces a la app`);
-// 	} else {
-		
-// 		req.session.counter = 1;
-// 		res.send('Bienvenido a la app');
-// 	}
-// });
-
-// app.get('/login', (req, res) => {
-// 	const { email, password } = req.body;
-
-// 	req.session.email = email;
-// 	req.session.password = password;
-// 	return res.send('Usuario logueado');
-// });
-
-// app.get('/admin', auth, (req, res) => {
-// 	// pasa primero por la autenticación, si me autentico, continuo con la ejecución
-// 	res.send('Admin logueado');
-// });
-
-// app.get('/logout', (req, res) => {
-// 	// de esta forma salgo de la sesion
-// 	req.session.destroy(error => {
-// 		error ? console.log(error) : res.send('Sesión cerrada');
-// 	});
-// });
-
-
-//Routes
-app.use('/static', express.static(`${_dirname}/public`));
+// Routes
+app.use('/static', express.static(path.join(_dirname, "/public")));
 app.use('/static', routerHandlebars);
 
-app.use('/api/products', routerProd); 
+app.use('/api/products', routerProd); // defino que mi app va a usar lo que venga en routerProd para la ruta que defina
 app.use('/api/carts', routerCart);
 app.use('/api/messages', routerMessage);
 app.use('/api/users', routerUser);

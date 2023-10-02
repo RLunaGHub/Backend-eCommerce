@@ -5,16 +5,18 @@ import productModel from '../models/products.models.js';
 const routerCart = Router();
 
 routerCart.get('/', async (req, res) => {
+	// Trae los carros
 	const { limit } = req.query;
 	try {
 		const carts = await cartModel.find().limit(limit);
 		res.status(200).send({ resultado: 'OK', message: carts });
 	} catch (error) {
-		res.status(400).send({ error: `Error al consultar el carrito: ${error}` });
+		res.status(400).send({ error: `Error al consultar carritos: ${error}` });
 	}
 });
-// http://localhost:8080/api/carts/650387088698eb6737c4bcc4/
+
 routerCart.get('/:cid', async (req, res) => {
+	// Trae carrito determinado
 	const { cid } = req.params;
 	try {
 		const cart = await cartModel.findById(cid);
@@ -22,20 +24,27 @@ routerCart.get('/:cid', async (req, res) => {
 			? res.status(200).send({ resultado: 'OK', message: cart })
 			: res.status(404).send({ resultado: 'Not Found', message: cart });
 	} catch (error) {
-		res.status(400).send({ error: `Error al consultar el carrito: ${error}` });
+		res.status(400).send({ error: `Error al consultar carrito: ${error}` });
 	}
 });
 
 routerCart.post('/', async (req, res) => {
+	// Crea un carrito
 	try {
 		const respuesta = await cartModel.create({});
 		res.status(200).send({ resultado: 'OK', message: respuesta });
 	} catch (error) {
-		res.status(400).send({ error: `Error al crear el producto: ${error}` });
+		res.status(400).send({ error: `Error al crear producto: ${error}` });
 	}
 });
 
+routerCart.put('/:cid', async (req, res) => {
+	// Agregar varios prods
+	const { cid } = req.params;
+});
+
 routerCart.put('/:cid/product/:pid', async (req, res) => {
+	// Agrega un prod
 	const { cid, pid } = req.params;
 
 	try {
@@ -58,44 +67,63 @@ routerCart.put('/:cid/product/:pid', async (req, res) => {
 			res.status(404).send({ resultado: 'Cart Not Found', message: cart });
 		}
 	} catch (error) {
-		res.status(400).send({ error: `Error al crear el producto: ${error}` });
+		res.status(400).send({ error: `Error al crear producto: ${error}` });
 	}
 });
 
-routerCart.delete('/:cid', async (req, res) => {
-	const { cid } = req.params;
-	try {
-		const cart = await cartModel.findByIdAndUpdate(cid, { products: [] });
-		cart
-			? res.status(200).send({ resultado: 'OK', message: cart })
-			: res.status(404).send({ resultado: 'Not Found', message: cart });
-	} catch (error) {
-		res.status(400).send({ error: `Error al vaciar el carrito: ${error}` });
-	}
-});
-
-routerCart.delete('/:cid/products/:pid', async (req, res) => {
+routerCart.put('/:cid', async (req, res) => {
+	// Agrega prods
 	const { cid, pid } = req.params;
 
 	try {
 		const cart = await cartModel.findById(cid);
+		const product = await productModel.findById(pid);
+
+		if (!product) {
+			res.status(404).send({ resultado: 'Product Not Found', message: product });
+			return false;
+		}
+
 		if (cart) {
-			const productIndex = cart.products.findIndex(prod => prod.id_prod == pid);
-			let deletedProduct;
-			if (productIndex !== -1) {
-				deletedProduct = cart.products[productIndex];
-				cart.products.splice(productIndex, 1);
-			} else {
-				res.status(404).send({ resultado: 'Product Not Found', message: cart });
-				return;
-			}
+			const productExists = cart.products.find(prod => prod.id_prod == pid);
+			productExists
+				? productExists.quantity++
+				: cart.products.push({ id_prod: product._id, quantity: 1 });
 			await cart.save();
-			res.status(200).send({ resultado: 'OK', message: deletedProduct });
+			res.status(200).send({ resultado: 'OK', message: cart });
 		} else {
 			res.status(404).send({ resultado: 'Cart Not Found', message: cart });
 		}
 	} catch (error) {
-		res.status(400).send({ error: `Error al eliminar producto: ${error}` });
+		res.status(400).send({ error: `Error al crear producto: ${error}` });
+	}
+});
+
+routerCart.delete('/:cid/product/:pid', async (req, res) => {
+	// Elimina prod por ID
+	const { cid, pid } = req.params;
+
+	try {
+		const cart = await cartModel.findById(cid);
+		const product = await productModel.findById(pid);
+
+		if (!product) {
+			res.status(404).send({ resultado: 'Product Not Found', message: product });
+			return false;
+		}
+
+		if (cart) {
+			const productExists = cart.products.find(prod => prod.id_prod == pid);
+			productExists
+				? productExists.quantity++
+				: cart.products.push({ id_prod: product._id, quantity: 1 });
+			await cart.save();
+			res.status(200).send({ resultado: 'OK', message: cart });
+		} else {
+			res.status(404).send({ resultado: 'Cart Not Found', message: cart });
+		}
+	} catch (error) {
+		res.status(400).send({ error: `Error al agregar producto: ${error}` });
 	}
 });
 
@@ -144,6 +172,44 @@ routerCart.put('/:cid', async (req, res) => {
 			: res.status(404).send({ resultado: 'Not Found', message: cart });
 	} catch (error) {
 		res.status(400).send({ error: `Error al agregar productos: ${error}` });
+	}
+});
+
+routerCart.delete('/:cid', async (req, res) => {
+	// Eliminar todos los productos
+	const { cid } = req.params;
+	try {
+		const cart = await cartModel.findByIdAndUpdate(cid, { products: [] });
+		cart
+			? res.status(200).send({ resultado: 'OK', message: cart })
+			: res.status(404).send({ resultado: 'Not Found', message: cart });
+	} catch (error) {
+		res.status(400).send({ error: `Error al vaciar el carrito: ${error}` });
+	}
+});
+
+routerCart.delete('/:cid/products/:pid', async (req, res) => {
+	const { cid, pid } = req.params;
+
+	try {
+		const cart = await cartModel.findById(cid);
+		if (cart) {
+			const productIndex = cart.products.findIndex(prod => prod.id_prod == pid);
+			let deletedProduct;
+			if (productIndex !== -1) {
+				deletedProduct = cart.products[productIndex];
+				cart.products.splice(productIndex, 1);
+			} else {
+				res.status(404).send({ resultado: 'Product Not Found', message: cart });
+				return;
+			}
+			await cart.save();
+			res.status(200).send({ resultado: 'OK', message: deletedProduct });
+		} else {
+			res.status(404).send({ resultado: 'Cart Not Found', message: cart });
+		}
+	} catch (error) {
+		res.status(400).send({ error: `Error al eliminar producto: ${error}` });
 	}
 });
 
