@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import passport from 'passport';
-// import userModel from '../models/users.models.js';
 
 const routerSession = Router();
 
@@ -35,28 +34,13 @@ routerSession.get('/githubSession', passport.authenticate('github'), async (req,
 	res.status(200).send({ mensaje: 'Sesión creada' });
 });
 
-// routerSession.get('/logout', (req, res) => {
-// 	console.log(req.session);
-// 	if (req.session) {
-//         req.session.destroy()
-//     }
-//     res.status(200).send({ resultado: 'Login eliminado', message: 'Logout' });
-// })
-
 routerSession.get('/logout', (req, res) => {
-    if (req.session.user) {
-        try {
-            req.session.destroy()
-            res.status(200).send({ resultado: 'Has cerrado sesion' })
-            res.redirect('/static/home');
-        }
-        catch (error) {
-            res.status(400).send({ error: `Error al cerrar sesion: ${error}` });
-        }
-    } else {
-        res.status(400).send({ error: `No hay sesion iniciada` });
-    }
-})
+	if (req.session) {
+		req.session.destroy();
+	}
+
+	res.status(200).send({ resultado: 'Login eliminado', message: 'Logout' });
+});
 
 export default routerSession;
 

@@ -33,18 +33,17 @@ const server = app.listen(PORT, () => {
 
 const io = new Server(server);
 
-//Middlewares
-// function auth(req, res, next) {
-// 	if (req.session.emial === 'admin@admin.com') {
-// 		return next();
-// 	} else {
-// 		res.send('No tenés acceso a este contenido');
-// 	}
-// }
+function auth(req, res, next) {
+	if (req.session.email === 'adminCoder@coder.com') {
+		return next();
+	} else {
+		res.send('No tiene acceso permitido');
+	}
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser(process.env.SIGNED_COOKIE)); // firmo la cookie para que si se modifica la cookie no la acepte / lea
+app.use(cookieParser(process.env.SIGNED_COOKIE)); // firmo la cookie
 app.use(
 	session({
 		// configuración 
@@ -58,7 +57,7 @@ app.use(
 		saveUninitialized: true,
 	})
 );
-app.engine('handlebars', engine()); //defino a handlebars como motor de plantillas
+app.engine('handlebars', engine()); //defino handlebars como motor de plantillas
 app.set('view engine', 'handlebars');
 app.set('views', path.resolve(_dirname, './views'));
 
@@ -74,7 +73,6 @@ mongoose
 	.catch(error => console.log(`Error en conexión a MongoDB Atlas:  ${error}`));
 
 // Conexión con socket.io
-
 io.on('connection', socket => {
 	console.log('Conexión con Socket.io');
 
@@ -115,7 +113,7 @@ io.on('connection', socket => {
 app.use('/static', express.static(path.join(_dirname, "/public")));
 app.use('/static', routerHandlebars);
 
-app.use('/api/products', routerProd); // defino que mi app va a usar lo que venga en routerProd para la ruta que defina
+app.use('/api/products', routerProd); 
 app.use('/api/carts', routerCart);
 app.use('/api/messages', routerMessage);
 app.use('/api/users', routerUser);
