@@ -19,10 +19,10 @@ routerSession.post('/login', passport.authenticate('login'), async (req, res) =>
 			email: req.user.email,
 		};
 
-		const token = generateToken(req.user); // se genera el token con el usuario
+		const token = generateToken(req.user); 
 		res.cookie('jwtCookie', token, {
-			// se envia el token a las cookies
-			maxAge: 43200000, // seteamos que dure 12 hs en milisegundos
+			
+			maxAge: 43200000, 
 		});
 
 		return res.redirect('../../static/products');

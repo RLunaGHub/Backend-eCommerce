@@ -11,7 +11,7 @@ routerUser.post('/', passport.authenticate('register'), async (req, res) => {
 		}
 
 		
-		return res.redirect('../../static/home'); //Redirect
+		return res.redirect('../../static/home'); 
 	} catch (error) {
 		res.status(500).send({ mensaje: `Error al crear el usuario ${error}` });
 	}

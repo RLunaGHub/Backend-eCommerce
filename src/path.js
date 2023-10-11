@@ -1,4 +1,3 @@
-// Define el path de la app
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 

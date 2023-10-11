@@ -1,1 +1,0 @@
-// Ayudas / herramientas específicas

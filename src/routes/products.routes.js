@@ -1,5 +1,3 @@
-// definición de rutas de la app / products / carts /
-// .routes es la ruta a utilizar por convención en la comisión 
 import { Router } from 'express';
 import productModel from '../models/products.models.js';
 
@@ -43,19 +41,6 @@ routerProd.post('/', async (req, res) => {
 	}
 });
 
-// {
-//     "title": "Doble",
-//     "description": "cola",
-//     "stock": 5,
-//     "code": "D456",
-//      "price": 100,
-//      "category": "gaseosas"
-
-        
-//     }
-
-
-
 routerProd.put('/:pid', async (req, res) => {
 	const { pid } = req.params;
 	const { title, description, stock, code, price, category, status } = req.body;
@@ -75,7 +60,7 @@ routerProd.put('/:pid', async (req, res) => {
 		res.status(400).send({ error: `Error al actualizar el producto: ${error}` });
 	}
 });
-// _id 64fa38849dd6cd4d0367d0dd - price: 20000
+
 routerProd.delete('/:pid', async (req, res) => {
 	const { pid } = req.params;
 	try {
@@ -87,6 +72,5 @@ routerProd.delete('/:pid', async (req, res) => {
 		res.status(400).send({ error: `Error al eliminar el producto: ${error}` });
 	}
 });
-// http://localhost:8080/api/products/6503ab80b6d6aff05631605d
 
 export default routerProd;
