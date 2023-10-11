@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import passport from 'passport';
-import { passportError } from '../utils/messageErrors';
+import { passportError, authorization } from "../utils/messageErrors.js"
 import { generateToken } from "../utils/jwt.js"
 
 const routerSession = Router();
