@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import cartModel from './carts.models.js';
 
 const userSchemna = new Schema({
 	first_name: {
@@ -18,6 +19,10 @@ const userSchemna = new Schema({
 		type: String,
 		default: 'user',
 	},
+	cart: {
+		type: Schema.Types.ObjectId,
+		ref: 'carts',
+	},
 	age: {
 		type: Number,
 		required: true,
@@ -26,6 +31,16 @@ const userSchemna = new Schema({
 		type: String,
 		required: true,
 	},
+});
+
+userSchemna.pre('save', async function (next) {
+	// Genero carrito al crear new user
+	try {
+		const newCart = await cartModel.create({});
+		this.cart = newCart._id;
+	} catch (error) {
+		next(error);
+	}
 });
 
 const userModel = model('users', userSchemna);

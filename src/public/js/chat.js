@@ -29,7 +29,7 @@ botonChat.addEventListener('click', () => {
 });
 
 socket.on('mensajes', arrayMensajes => {
-	parrafosMensajes.innerHTML = ''; // limpio
+	parrafosMensajes.innerHTML = ''; 
 	arrayMensajes.forEach(msj => {
 		const { email, message } = msj;
 		parrafosMensajes.innerHTML += `<p>${email} escribió: </p> <p>${message}</p>`;

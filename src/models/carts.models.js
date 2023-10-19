@@ -5,7 +5,7 @@ const cartSchema = new Schema({
 		type: [
 			{
 				id_prod: {
-					type: Schema.Types.ObjectId, // ID autogenerado Mongo
+					type: Schema.Types.ObjectId, 
 					ref: 'products',
 					required: true,
 				},

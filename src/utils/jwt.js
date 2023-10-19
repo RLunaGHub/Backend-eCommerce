@@ -10,7 +10,6 @@ export const generateToken = user => {
 	const token = jwt.sign({ user }, process.env.JWT_SECRET, { expiresIn: '12h' });
 	return token;
 };
-
 export const authToken = (req, res, next) => {
 	
 	const authHeader = req.headers.Autorization; // Consulto si existe el token
