@@ -2,9 +2,6 @@ const socket = io();
 
 const cartContainer = document.querySelector('#cart-container');
 
-const path = window.location.pathname;
-const cid = path.slice(path.length);
-
 socket.emit('loadCart', cid);
 
 socket.on('cartProducts', data => {

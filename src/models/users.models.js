@@ -34,7 +34,7 @@ const userSchemna = new Schema({
 });
 
 userSchemna.pre('save', async function (next) {
-	// Genero carrito al crear new user
+	
 	try {
 		const newCart = await cartModel.create({});
 		this.cart = newCart._id;

@@ -80,8 +80,7 @@ async function addProduct(cartId, pid) {
 		body: JSON.stringify({}),
 	});
 	const data = await res.json();
-	console.log(data);
-}
+	}
 
 previousButton.addEventListener('click', async () => {
 	page--;

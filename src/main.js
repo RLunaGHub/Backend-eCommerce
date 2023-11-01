@@ -101,7 +101,6 @@ io.on('connection', socket => {
 
 app.use('/static', express.static(path.join(_dirname, "/public")));
 app.use('/static', routerHandlebars);
-
 app.use("/", router) 
 
 app.get('/setCookie', (req, res) => {
