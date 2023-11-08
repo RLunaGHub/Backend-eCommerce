@@ -1,5 +1,4 @@
 import { faker } from '@faker-js/faker';
-import { log } from 'winston';
 
 const createProducts = (req, res) => {
 	let products = [];
@@ -21,8 +20,6 @@ const createProducts = (req, res) => {
 	
 
 };
-
-console.log(createProducts(5));
 
 const mocksController = { createProducts };
 
