@@ -2,11 +2,7 @@ import 'dotenv/config';
 import jwt from 'jsonwebtoken';
 
 export const generateToken = user => {
-	/* 
-    1° parámetro: Objeto asociado del token
-    2° parámetro: Clave privada para el cifrado de los datos
-    3° patámetro: Tiempo de vida
-  */
+
 	const token = jwt.sign({ user }, process.env.JWT_SECRET, { expiresIn: '12h' });
 	return token;
 };

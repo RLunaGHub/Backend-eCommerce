@@ -1,9 +1,8 @@
 import cartModel from '../models/carts.models.js';
 import productModel from '../models/products.models.js';
 import userModel from '../models/users.models.js';
-
 const getCarts = async (req, res) => {
-	//traer los carritos
+	
 	const { limit } = req.query;
 	try {
 		const carts = await cartModel.find().limit(limit);
@@ -14,7 +13,7 @@ const getCarts = async (req, res) => {
 };
 
 const getCart = async (req, res) => {
-	// traer un carrito
+	
 	const { cid } = req.params;
 	try {
 		const cart = await cartModel.findById(cid);
@@ -71,7 +70,7 @@ const postCart = async (req, res) => {
 };
 
 const putProductToCart = async (req, res) => {
-	// agregar producto al carrito
+	
 	const { cid, pid } = req.params;
 
 	try {
@@ -140,7 +139,7 @@ const putQuantity = async (req, res) => {
 	}
 };
 const putProductsToCart = async (req, res) => {
-	// agregar varios producto al carrito
+	
 	const { cid } = req.params;
 	const { updateProducts } = req.body;
 
@@ -164,7 +163,7 @@ const putProductsToCart = async (req, res) => {
 };
 
 const deleteCart = async (req, res) => {
-	// eliminar todos los productos del carrito
+	
 	const { cid } = req.params;
 	try {
 		const cart = await cartModel.findByIdAndUpdate(cid, { products: [] });
@@ -177,8 +176,7 @@ const deleteCart = async (req, res) => {
 };
 
 const deleteProductFromCart = async (req, res) => {
-	// eliminar un producto
-
+	
 	const { cid, pid } = req.params;
 
 	try {
