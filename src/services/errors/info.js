@@ -1,5 +1,5 @@
 export const generateProductErrorInfo = product => {
-	return `Entrada incompletas o no válida.
+	return `Entrada incompleta o no válida.
   Propiedades requeridas:
     * title : requiere un String, recibió ${product.title}
     * description : requiere un String, recibió ${product.description}
@@ -11,7 +11,7 @@ export const generateProductErrorInfo = product => {
 };
 
 export const generateUserErrorInfo = user => {
-	return `Entrada incompletas o no válida.
+	return `Entrada incompleta o no válida.
   Propiedades requeridas:
     * firts_name : requiere String, recibió ${user.first_name}
     * last_name : requiere String, recibió ${user.last_name}

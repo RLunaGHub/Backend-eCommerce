@@ -1,5 +1,4 @@
 import { faker } from '@faker-js/faker';
-
 const createProducts = (req, res) => {
 	let products = [];
 	for (let i = 0; i < 100; i++) {
@@ -16,11 +15,11 @@ const createProducts = (req, res) => {
 		};
 		products.push(product);
 	}
-	return res.status(200).send({ respuesta: 'Productos generados', productos: products });
 	
-
+	return res.status(200).send({ respuesta: 'Productos generados', productos: products });
 };
 
 const mocksController = { createProducts };
 
 export default mocksController;
+
