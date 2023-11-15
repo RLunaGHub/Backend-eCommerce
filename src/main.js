@@ -20,8 +20,8 @@ const app = express();
 const PORT = 8080;
 
 const server = app.listen(PORT, () => {
-	console.log(`Servidor desde puerto: ${PORT}`);
-	console.log(`http://localhost:${PORT}`);
+	logger.info (`Servidor desde puerto: ${PORT}`);
+	logger.info (`http://localhost:${PORT}`);
 });
 
 const io = new Server(server);
@@ -61,11 +61,11 @@ app.use(passport.session());
 
 mongoose
 	.connect(process.env.MONGO_URL)
-	.then(() => console.log('DB conectada'))
-	.catch(error => console.log(`Error en conexión a MongoDB Atlas:  ${error}`));
+	.then(() => logger.info('DB conectada'))
+	.catch(error => logger.error(`Error en conexión a MongoDB Atlas:  ${error}`));
 
 io.on('connection', socket => {
-	console.log('Conexión con Socket.io');
+	logger.info ('Conexión con Socket.io');
 
 	socket.on('load', async () => {
 		const data = await productModel.paginate({}, { limit: 5 });

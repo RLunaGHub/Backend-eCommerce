@@ -1,6 +1,7 @@
 import cartModel from '../models/carts.models.js';
 import productModel from '../models/products.models.js';
 import userModel from '../models/users.models.js';
+import { logger } from '../utils/loggers.js';
 const getCarts = async (req, res) => {
 	
 	const { limit } = req.query;
@@ -46,7 +47,7 @@ const purchaseCart = async (req, res) => {
 				}
 				//ticket?info=${amount}pid
 			});
-			console.log(purchaseItems);
+			logger.info (purchaseItems);
 			await cartModel.findByIdAndUpdate(cid, { products: [] });
 			res.redirect(
 				`http://localhost:8080/api/tickets/create?amount=${amount}&email=${email}`
@@ -83,7 +84,7 @@ const putProductToCart = async (req, res) => {
 		}
 
 		if (product.stock === 0) {
-			console.log(product.stock);
+			logger.info(product.stock);
 			res.status(400).send({ error: `No hay stock` });
 		}
 
