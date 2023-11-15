@@ -2,11 +2,9 @@ import 'dotenv/config';
 import nodemailer from 'nodemailer';
 import { _dirname } from '../path.js';
 
-// Config mailing **************** ///
-
 let transporter = nodemailer.createTransport({
 	host: 'smtp.gmail.com', // host para gmail;
-	port: 465, // puerto de gmail
+	port: 465, // puerto gmail
 	secure: true,
 	auth: {
 		user: 'castalepra6@gmail.com',
@@ -17,12 +15,12 @@ let transporter = nodemailer.createTransport({
 
 const sendEmail = async (req, res) => {
 	const resultado = await transporter.sendMail({
-		from: 'TEST castalepra6@gmail.com',
+		from: 'TESTING castalepra6@gmail.com',
 		to: 'castalepra6@gmail.com',
-		subject: 'Buenas tardes',
+		subject: 'Mail de prueba',
 		html: `
       <div>
-        <h1>Hola Buenas Tardes</h1>
+        <h1>Testing</h1>
       </div>
     `,
 		attachments: [

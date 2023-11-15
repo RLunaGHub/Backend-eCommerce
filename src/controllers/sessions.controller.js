@@ -6,14 +6,6 @@ const postSession = async (req, res) => {
 			return res.status(401).send({ mensaje: 'Invalidate user' });
 		}
 
-		// req.session.user = {
-		// 	first_name: req.user.first_name,
-		// 	last_name: req.user.last_name,
-		// 	age: req.user.age,
-		// 	rol: req.user.rol,
-		// 	email: req.user.email,
-		// };
-
 		const token = generateToken(req.user); 
 		res.cookie('jwtCookie', token, {
 			

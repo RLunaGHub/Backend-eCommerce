@@ -14,6 +14,7 @@ import router from './routes/index.routes.js';
 import messageModel from './models/messages.models.js';
 import productModel from './models/products.models.js';
 import routerHandlebars from './routes/handlebars.routes.js';
+import { logger } from './utils/loggers.js'; 
 
 const app = express();
 const PORT = 8080;

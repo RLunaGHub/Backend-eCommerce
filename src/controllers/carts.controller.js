@@ -60,7 +60,7 @@ const purchaseCart = async (req, res) => {
 };
 
 const postCart = async (req, res) => {
-	//crear un carrito
+	
 	try {
 		const respuesta = await cartModel.create({});
 		res.status(200).send({ resultado: 'OK', message: respuesta });

@@ -5,7 +5,6 @@ import { generateProductErrorInfo } from '../services/errors/info.js';
 
 const getProducts = async (req, res) => {
 	const { limit, page, sort, category } = req.query;
-
 	const pag = page ? page : 1;
 	const lim = limit ? limit : 10;
 	const ord = sort === 'asc' ? 1 : 0;
@@ -43,7 +42,6 @@ const getProduct = async (req, res) => {
 		res.status(500).send({ error: `Error en consultar producto ${error}` });
 	}
 };
-
 const postProduct = async (req, res) => {
 	const { title, description, code, price, stock, category } = req.body;
 	if ((!title, !description, !code, !price, !stock, !category)) {
@@ -76,7 +74,6 @@ const postProduct = async (req, res) => {
 		return res.status(500).send({ error: `Error en consultar producto ${error}` });
 	}
 };
-
 const putProduct = async (req, res) => {
 	const { pid } = req.params;
 	const { title, description, code, price, stock, category } = req.body;
