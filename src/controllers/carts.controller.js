@@ -3,7 +3,6 @@ import productModel from '../models/products.models.js';
 import userModel from '../models/users.models.js';
 import { logger } from '../utils/loggers.js';
 const getCarts = async (req, res) => {
-	
 	const { limit } = req.query;
 	try {
 		const carts = await cartModel.find().limit(limit);
@@ -12,9 +11,7 @@ const getCarts = async (req, res) => {
 		res.status(400).send({ error: `Error al consultar carritos: ${error}` });
 	}
 };
-
 const getCart = async (req, res) => {
-	
 	const { cid } = req.params;
 	try {
 		const cart = await cartModel.findById(cid);
@@ -22,10 +19,9 @@ const getCart = async (req, res) => {
 			? res.status(200).send({ resultado: 'OK', message: cart })
 			: res.status(404).send({ resultado: 'Not Found', message: cart });
 	} catch (error) {
-		res.status(400).send({ error: `Error al consultar carrito: ${error}` });
+		res.status(400).send({ error: `Error al consultar el carrito: ${error}` });
 	}
 };
-
 const purchaseCart = async (req, res) => {
 	const { cid } = req.params;
 	try {
@@ -45,9 +41,11 @@ const purchaseCart = async (req, res) => {
 					await product.save();
 					purchaseItems.push(product.title);
 				}
-				//ticket?info=${amount}pid
+				
 			});
-			logger.info (purchaseItems);
+			if (user.rol === 'premium') {
+				amount *= 0.8;
+			}
 			await cartModel.findByIdAndUpdate(cid, { products: [] });
 			res.redirect(
 				`http://localhost:8080/api/tickets/create?amount=${amount}&email=${email}`
@@ -61,19 +59,16 @@ const purchaseCart = async (req, res) => {
 };
 
 const postCart = async (req, res) => {
-	
 	try {
 		const respuesta = await cartModel.create({});
 		res.status(200).send({ resultado: 'OK', message: respuesta });
 	} catch (error) {
-		res.status(400).send({ error: `Error al crear carrito: ${error}` });
+		res.status(400).send({ error: `Error al crear el carrito: ${error}` });
 	}
 };
 
 const putProductToCart = async (req, res) => {
-	
 	const { cid, pid } = req.params;
-
 	try {
 		const cart = await cartModel.findById(cid);
 		const product = await productModel.findById(pid);
@@ -85,7 +80,7 @@ const putProductToCart = async (req, res) => {
 
 		if (product.stock === 0) {
 			logger.info(product.stock);
-			res.status(400).send({ error: `No hay stock` });
+			res.status(400).send({ error: `No hay stock disponible` });
 		}
 
 		if (cart) {
@@ -110,7 +105,6 @@ const putProductToCart = async (req, res) => {
 };
 
 const putQuantity = async (req, res) => {
-	// agregar cantidad de un producto
 	const { cid, pid } = req.params;
 	const { quantity } = req.body;
 	const product = await productModel.findById(pid);
@@ -136,11 +130,10 @@ const putQuantity = async (req, res) => {
 			res.status(404).send({ resultado: 'Cart Not Found', message: cart });
 		}
 	} catch (error) {
-		res.status(400).send({ error: `Error al agregar productos: ${error}` });
+		res.status(400).send({ error: `Error al agregar los productos: ${error}` });
 	}
 };
 const putProductsToCart = async (req, res) => {
-	
 	const { cid } = req.params;
 	const { updateProducts } = req.body;
 
@@ -159,12 +152,10 @@ const putProductsToCart = async (req, res) => {
 			? res.status(200).send({ resultado: 'OK', message: cart })
 			: res.status(404).send({ resultado: 'Not Found', message: cart });
 	} catch (error) {
-		res.status(400).send({ error: `Error al agregar productos: ${error}` });
+		res.status(400).send({ error: `Error al agregar los productos: ${error}` });
 	}
 };
-
 const deleteCart = async (req, res) => {
-	
 	const { cid } = req.params;
 	try {
 		const cart = await cartModel.findByIdAndUpdate(cid, { products: [] });
@@ -177,7 +168,6 @@ const deleteCart = async (req, res) => {
 };
 
 const deleteProductFromCart = async (req, res) => {
-	
 	const { cid, pid } = req.params;
 
 	try {
@@ -198,7 +188,7 @@ const deleteProductFromCart = async (req, res) => {
 			res.status(404).send({ resultado: 'Cart Not Found', message: cart });
 		}
 	} catch (error) {
-		res.status(400).send({ error: `Error al eliminar producto: ${error}` });
+		res.status(400).send({ error: `Error al eliminar el producto del carrito: ${error}` });
 	}
 };
 

@@ -7,6 +7,7 @@ import userModel from '../models/users.models.js'
 import { generateUserErrorInfo } from '../services/errors/info.js';
 import CustomError from '../services/errors/CustomError.js';
 import EErrors from '../services/errors/enums.js';
+import logger from '../utils/loggers.js'
 
 const localStrategy = local.Strategy
 const JWTStrategy = jwt.Strategy
@@ -16,9 +17,7 @@ const initializePassport = () => {
 
     const cookieExtractor = req => {
         console.log(req.cookies)
-        
         const token = req.cookies ? req.cookies.jwtCookie : {}
-        console.log(token)
         return token
     }
     
@@ -30,6 +29,7 @@ const initializePassport = () => {
             console.log(jwt_payload);
             return done(null, jwt_payload) //contenido del token
         } catch (error) {
+            logger.error(`[ERROR] - Date: ${new Date().toLocaleTimeString()} - ${error.message}`)
             return done(error)
         }
     }))
@@ -41,7 +41,7 @@ const initializePassport = () => {
             const { first_name, last_name, email, age } = req.body
             if (!first_name || !last_name || !email || !age || !password) {
                 CustomError.createError({
-                    name: 'Error de creación de usuario',
+                    name: 'Error al crear usuario',
                     cause: generateUserErrorInfo({
                         first_name,
                         last_name,
@@ -67,7 +67,7 @@ const initializePassport = () => {
                     age: age,
                     password: passwordHash
                 })
-                console.log(userCreated)
+                req.user = userCreated;
                 return done(null, userCreated)
             } catch (error) {
                 return done(error)
@@ -81,23 +81,26 @@ const initializePassport = () => {
         callbackURL: process.env.CALLBACK_URL
     }, async (accessToken, refreshToken, profile, done) => {
         try {
-            console.log(accessToken)
-            console.log(refreshToken)
             const user = await userModel.findOne({ email: profile._json.email })
             if (!user) {
+                const hashPassword = createHash('password')
                 const userCreated = await userModel.create({
                     first_name: profile._json.name,
                     last_name: ' ',
                     email: profile._json.email,
-                    age: 18, 
-                    password: 'password'
+                    age: 18, //Edad por defecto,
+                    password: hashPassword,
                 })
+                logger.info('User created')
                 done(null, userCreated)
-            } else {
-                done(null, user)
 
+            } else {
+                logger.info('User already exists')
+                done(null, user)
             }
+
         } catch (error) {
+            logger.error(error)
             done(error)
         }
     }))

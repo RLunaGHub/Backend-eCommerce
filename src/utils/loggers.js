@@ -1,4 +1,4 @@
-import winston, { loggers } from 'winston';
+import winston from 'winston';
 
 const customOptionsLevels = {
     levels: {
@@ -39,3 +39,6 @@ export const logger = winston.createLogger({
         }),
     ],
 });
+
+
+export default logger;
