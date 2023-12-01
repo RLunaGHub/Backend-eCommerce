@@ -15,9 +15,25 @@ import messageModel from './models/messages.models.js';
 import productModel from './models/products.models.js';
 import routerHandlebars from './routes/handlebars.routes.js';
 import { logger } from './utils/loggers.js'; 
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUiExpress from 'swagger-ui-express';
 
 const app = express();
 const PORT = 8080;
+
+const swaggerOptions = {
+	definition: {
+		openapi: '3.1.0',
+		info: {
+			title: 'Documentación del Proyecto final Backend ecommerce Coderhouse',
+			description: 'API Backend Coderhouse',
+		},
+	},
+	apis: [`${_dirname}/docs/**/*.yaml`],
+};
+
+const specs = swaggerJSDoc(swaggerOptions);
+app.use('/apidocs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
 
 const server = app.listen(PORT, () => {
 	logger.info (`Servidor desde puerto: ${PORT}`);
@@ -36,7 +52,7 @@ function auth(req, res, next) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(process.env.SIGNED_COOKIE));
- 
+
 app.use(
 	session({
 		

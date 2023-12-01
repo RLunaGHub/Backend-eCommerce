@@ -9,7 +9,7 @@ export const passportError = strategy => {
 			if (!user) {
 				return res
 					.status(401)
-					.send({ error: info.messages ? info.messages : info.toString() }); // si me envian info.messages, muestro la respuesta que me enviaron. Si no, muestro el objeto info pasado a strign ( hay estrategias que envian el objeto info con la propiedad message)
+					.send({ error: info.messages ? info.messages : info.toString() }); 
 			}
 
 			req.user = user;
@@ -18,15 +18,15 @@ export const passportError = strategy => {
 	};
 };
 
-export const authorization = rol => {
+export const authorization = roles => {
 	return async (req, res, next) => {
-		
 		if (!req.user) {
 			return res.status(401).send({ error: 'User no autorizado' });
 		}
 
-		if (req.user.user.rol != rol) {
-			return res.status(403).send({ error: 'User no tiene los privilegios necesarios' });
+		const isAuthorized = roles.find(rol => rol == req.user.user.rol);
+		if (!isAuthorized) {
+			return res.status(403).send({ error: 'User no tiene los privilegios necesarios para realizar esta acción' });
 		}
 
 		next();
