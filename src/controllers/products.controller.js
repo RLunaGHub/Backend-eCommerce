@@ -23,7 +23,7 @@ try {
 
 		res.status(404).send({ error: 'Productos no encontrados' });
 	} catch (error) {
-		res.status(500).send({ error: `Error en consultar productos ${error}` });
+		res.status(500).send({ error: `Error al consultar productos ${error}` });
 	}
 };
 
