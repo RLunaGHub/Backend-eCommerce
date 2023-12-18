@@ -1,23 +1,23 @@
 import 'dotenv/config';
-
 import productModel from '../src/models/products.models.js';
-import chai from 'chai';
+import Assert from 'assert';
 import mongoose from 'mongoose';
 
 await mongoose
 	.connect(process.env.MONGO_URL)
-	.then(() => console.log('DB conectada'))
-	.catch(error => console.log(`Error en conexión a MongoDB Atlas:  ${error}`));
+	.then(() => logger.info('DB conectada (test mode)'))
+	.catch(error => logger.error (`Error en conexión a MongoDB Atlas (test mode):  ${error}`));
 
-const expect = chai.expect;
+const assert = Assert.strict;
 
-describe('Products testing with Chai', () => {
+describe('Products testing', () => {
 	beforeEach(function () {
 		this.timeout(7000);
 	});
+
 	let id;
 
-	it('Crear un nuevo producto', async function () {
+	it('Crear nuevo producto', async function () {
 		const newProduct = {
 			title: 'Panqueque',
 			description: 'Panqueque de dulce de leche',
@@ -28,21 +28,21 @@ describe('Products testing with Chai', () => {
 		};
 		const resultado = await productModel.create(newProduct);
 		id = resultado._id;
-		expect(resultado._id && true).to.be.ok;
+		assert.ok(resultado._id);
 	});
 
-	it('Consultar un producto por Id', async function () {
+	it('Consultar un producto por su id', async function () {
 		const product = await productModel.findById(id);
-		expect(typeof product == 'object').to.be.ok;
+		assert.strictEqual(typeof product, 'object');
 	});
 
 	it('Eliminar un producto por su id', async function () {
 		const product = await productModel.findByIdAndRemove(id);
-		expect(typeof product == 'object').to.be.ok;
+		assert.strictEqual(typeof product, 'object');
 	});
 
 	it('Consultar todos los productos', async function () {
 		const products = await productModel.find();
-		expect(Array.isArray(products)).to.be.ok;
+		assert.strictEqual(Array.isArray(products), true);
 	});
 });
