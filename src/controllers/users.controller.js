@@ -81,3 +81,22 @@ const usersController = { getUser, postUser, passwordRecovery, passwordReset };
 
 export default usersController;
 
+export async function uploadDocuments(req, res, next) {
+    try {
+        const userId = req.params.uid;
+        const newDocuments = req.files.map(file => ({
+            name: file.originalname,
+            reference: file.path,
+        }));
+
+        const user = await userModel.findById(userId);
+        user.documents.push(...newDocuments);
+        await user.save();
+
+        res.json({ message: 'Documento de prueba' });
+    } catch (error) {
+        next(error);
+    }
+}
+
+

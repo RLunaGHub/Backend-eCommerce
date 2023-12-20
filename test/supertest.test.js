@@ -4,14 +4,13 @@ import supertest from 'supertest';
 import mongoose from 'mongoose';
 import logger from '../src/utils/loggers';
 
+const expect = chai.expect;
+const requester = supertest('http://localhost:8080/');
 
 await mongoose
 	.connect(process.env.MONGO_URL)
 	.then(() => logger.info ('DB conectada (test mode)'))
 	.catch(error => logger.error(`Error en conexión a MongoDB Atlas (test mode):  ${error}`));
-
-const expect = chai.expect;
-const requester = supertest('http://localhost:8080/');
 
 describe('App testing', () => {
 	let token = {}
@@ -95,4 +94,27 @@ describe ( "Products test", () => {
 		expect ( eliminateProduct.status ).to.equal ( 200 );
 		expect ( eliminateProduct.body ).to.have.property ( "_id" ).to.be.a ("string");
 	});
+
+	it('Endpoint test /api/carts/cid/product/pid, se espera que agregue un producto al carrito', async function () {
+        const cid = cartId
+        const pid = ''
+     
+        const { __body, status } = await requester.post(`/api/carts/${cid}/product/${pid}`).set('Cookie', [`${token.name} = ${token.value}`])
+
+        expect(status).to.equal(200)
+        logger.info('Product added succesfully')
+        logger.info(`Product: ${__body.products}`)
+    })
+
+    it('Endpoint test /api/carts/cid/product/pid, se espera que modifique la cantidad de productos del carrito', async function () {
+        const cid = cartId
+        const pid = ''
+        const newQty = { quantity : 10 }
+        
+        const { __body, status } = await requester.put(`/api/carts/${cid}/product/${pid}`).send(newQty).set('Cookie', [`${token.name} = ${token.value}`])
+
+        expect(status).to.equal(200)
+        logger.info('Updated product qty')
+        logger.info(`Status: ${__body}`)
+    })
 });
