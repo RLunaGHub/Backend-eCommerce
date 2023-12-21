@@ -35,6 +35,7 @@ const swaggerOptions = {
 const specs = swaggerJSDoc(swaggerOptions);
 app.use('/apidocs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
 
+
 const server = app.listen(PORT, () => {
 	logger.info (`Servidor desde puerto: ${PORT}`);
 	logger.info (`http://localhost:${PORT}`);
@@ -75,7 +76,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-mongoose
+await mongoose
 	.connect(process.env.MONGO_URL)
 	.then(() => logger.info('DB conectada'))
 	.catch(error => logger.error(`Error en conexión a MongoDB Atlas:  ${error}`));

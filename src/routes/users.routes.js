@@ -3,13 +3,17 @@ import passport from 'passport';
 import usersController from '../controllers/users.controller.js';
 import multer from 'multer';
 
-const routerUser = Router();
 const upload = multer({ dest: 'documents/' });
 
-routerUser.post('/', passport.authenticate('register'), usersController.postUser);
+const routerUser = Router();
 
+routerUser.post('/', passport.authenticate('register'), usersController.postUser);
 routerUser.get('/', usersController.getUser);
-routerUser.post('/api/:uid/documents', upload.array('documents'), usersController.uploadDocuments); 
+routerUser.post('/recovery', usersController.passwordRecovery);
+routerUser.post('/resetpassword/:token', usersController.passwordReset);
+routerUser.post('/:uid/documents', upload.array('documents'), usersController.uploadDocuments);
+routerUser.delete('/:uid', usersController.deleteUser);
+
 export default routerUser;
 
 
