@@ -1,25 +1,41 @@
 import { generateToken } from '../utils/jwt.js';
 import userModel from '../models/users.models.js';
 
-const postSession = async (req, res) => {
-	try {
-		if (!req.user) {
-			return res.status(401).send({ mensaje: 'Invalidate user' });
-		}
+const sessionUser = (req) => {
+    const { first_name, last_name, email, age } = req.user;
+    req.session.user = { first_name, last_name, email, age };
+}
 
-		const token = generateToken(req.user); 
-		res.cookie('jwtCookie', token, {
-			
-			maxAge: 43200000, 
-		});
-		const user = userModel.findOne({ email: req.user.email });
-		user.last_connection = Date.now();
-		await user.save();
+const postSession = async ( req, res ) => {
+    try {
+        if ( !req.user ) {
+            return res.status ( 401 ).send ( `${ CustomError.Unauthorized ()}` );
+        }
+        sessionUser(req);
+        const token = generateToken ( req.user );
+        res.cookie ( "jwtCookie", token, {
+            maxAge: 43200000
+        })
+        return res.status ( 200 ).send ( req.user );
+    } catch (error) {
+        return res.status ( 500 ).send ( `${ CustomError.InternalServerError ()}` ); 
+    }
+};
+//add
+const sessionRegister =  async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.status(400).send({ mensaje: 'Usuario ya existente' })
+        }
+        return res.status(200).send({ mensaje: 'Usuario creado' })
+    } catch (error) {
+        res.status(500).send({ mensaje: `Error al crear usuario ${error}` })
+    }
+}
 
-		return res.status(200).send('Login generado');
-	} catch (error) {
-		res.status(500).send({ mensaje: `Error de inicio de sesión ${error}` });
-	}
+const getJWT = async ( req, res ) => {
+    sessionUser(req);
+    return res.status ( 200 ).send ( req.user ); 
 };
 
 const getCurrentSession = async (req, res) => {
@@ -35,25 +51,28 @@ const getGithubSession = async (req, res) => {
 	res.status(200).send({ mensaje: 'Sesión creada' });
 };
 
-const getLogout = async (req, res) => {
-	if (req.session) {
-		req.session.destroy();
-		if (req.user) {
-			const user = userModel.findOne({ email: req.user.email });
-			user.last_connection = Date.now();
-			await user.save();
-		}
-	}
-	res.clearCookie('jwtCookie');
-	res.status(200).send({ resultado: 'Login eliminado', message: 'Logout' });
+const getLogout = async ( req, res ) => {
+    let userDat = {};
+    if ( req.session.passport ) {
+        userDat = req.session.passport.user;
+        const sessionUser = await userModel.findById ( userDat );
+        await sessionUser.updateLastConnection ();
+        req.session.destroy ();
+        return res.status ( 200 ).send ({ result: "Logout done successfully" });
+    } else {
+        return res.status ( 400 ).send ({ result: "No session active" });
+    }
 };
 
 const sessionController = {
 	postSession,
+    sessionRegister,
 	getCurrentSession,
 	getGithubCreateUser,
 	getGithubSession,
 	getLogout,
+	getJWT,
 };
 
 export default sessionController;
+

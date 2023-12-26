@@ -43,8 +43,8 @@ const userSchemna = new Schema({
 	last_connection: Date,
 });
 
+
 userSchemna.pre('save', async function (next) {
-	// preconfiguración para generar un nuevo carrito al crear el usuario
 	try {
 		const newCart = await cartModel.create({});
 		this.cart = newCart._id;

@@ -14,13 +14,14 @@ const postUser = async (req, res) => {
 	}
 };
 
-const getUser = async (req, res) => {
-	try {
-		const response = await userModel.find();
-		res.status(200).send(response);
-	} catch (error) {
-		res.status(400).send({ error: `Error al consultar usuarios: ${error}` });
-	}
+const getUser = async ( req, res ) => {
+    try {
+        const users = await userModel.find ();
+        return res.status ( 200 ).send ( users );
+    } catch ( error ) {
+        logger.warning ( `[ ERROR ] [ ${ new Date ().toLocaleString () } ] Ha ocurrido un error: ${ error.message }` );
+        return res.status ( 500 ).send ( `${ CustomError.InternalServerError ()}` );
+    }
 };
 
 const recoveryLinks = {};
