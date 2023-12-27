@@ -1,5 +1,6 @@
 import { generateToken } from '../utils/jwt.js';
 import userModel from '../models/users.models.js';
+import logger from '../utils/loggers.js';
 
 const sessionUser = (req) => {
     const { first_name, last_name, email, age } = req.user;
@@ -21,15 +22,34 @@ const postSession = async ( req, res ) => {
         return res.status ( 500 ).send ( `${ CustomError.InternalServerError ()}` ); 
     }
 };
-//add
-const sessionRegister =  async (req, res) => {
+// //add
+// const sessionRegister =  async (req, res) => {
+//     try {
+//         if (!req.user) {
+//             return res.status(400).send({ mensaje: 'Usuario ya existente' })
+//         }
+//         return res.status(200).send({ mensaje: 'Usuario creado' })
+//     } catch (error) {
+//         res.status(500).send({ mensaje: `Error al crear usuario ${error}` })
+//     }
+// }
+const sessionRegister = async (req, res) => {
     try {
         if (!req.user) {
-            return res.status(400).send({ mensaje: 'Usuario ya existente' })
+            res.status(401).send({ error: `Error al registrar usuario` });
         }
-        return res.status(200).send({ mensaje: 'Usuario creado' })
-    } catch (error) {
-        res.status(500).send({ mensaje: `Error al crear usuario ${error}` })
+        req.session.user = {
+            first_name: req.user.first_name,
+            last_name: req.user.last_name,
+            age: req.user.age,
+            email: req.user.email,
+            role: req.user.role
+        }
+        res.status(200).send({ payload: req.user })
+    }
+    catch (error) {
+        logger.error(`Error al registrar usuario: ${error}`);
+        res.status(500).send({ mensaje: `Error al registrar usuario ${error}` });
     }
 }
 
@@ -51,19 +71,38 @@ const getGithubSession = async (req, res) => {
 	res.status(200).send({ mensaje: 'Sesión creada' });
 };
 
-const getLogout = async ( req, res ) => {
-    let userDat = {};
-    if ( req.session.passport ) {
-        userDat = req.session.passport.user;
-        const sessionUser = await userModel.findById ( userDat );
-        await sessionUser.updateLastConnection ();
-        req.session.destroy ();
-        return res.status ( 200 ).send ({ result: "Logout done successfully" });
-    } else {
-        return res.status ( 400 ).send ({ result: "No session active" });
-    }
-};
+// const getLogout = async ( req, res ) => {
+//     let userDat = {};
+//     if ( req.session.passport ) {
+//         userDat = req.session.passport.user;
+//         const sessionUser = await userModel.findById ( userDat );
+//         await sessionUser.updateLastConnection ();
+//         req.session.destroy ();
+//         return res.status ( 200 ).send ({ result: "Logout done successfully" });
+//     } else {
+//         return res.status ( 400 ).send ({ result: "No session active" });
+//     }
+// };
 
+//add
+
+const getLogout = async (req, res) => {
+    if (req.session.user) {
+        try {
+            //Actualizamos la ultima conexion del usuario
+            await userModel.findByIdAndUpdate(req.session.user._id, { last_connection: Date.now() })
+            req.session.destroy()
+            res.clearCookie('jwtCookie')
+            res.status(200).send({ resultado: 'Has cerrado sesion' })
+            // res.redirect('/static/login');
+        }
+        catch (error) {
+            res.status(400).send({ error: `Error al cerrar sesion: ${error}` });
+        }
+    } else {
+        res.status(400).send({ error: `No hay sesion iniciada` });
+    }
+}
 const sessionController = {
 	postSession,
     sessionRegister,
