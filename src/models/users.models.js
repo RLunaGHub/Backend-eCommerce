@@ -41,6 +41,10 @@ const userSchemna = new Schema({
 	},
 	documents: [fileSchema],
 	last_connection: Date,
+	last_connection:{ 
+        type: Date,
+        default: Date.now
+    }
 });
 
 

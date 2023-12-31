@@ -2,37 +2,51 @@ import { generateToken } from '../utils/jwt.js';
 import userModel from '../models/users.models.js';
 import logger from '../utils/loggers.js';
 
-const sessionUser = (req) => {
-    const { first_name, last_name, email, age } = req.user;
-    req.session.user = { first_name, last_name, email, age };
-}
+// const sessionUser = (req) => {
+//     const { first_name, last_name, email, age } = req.user;
+//     req.session.user = { first_name, last_name, email, age };
+// }
 
+// const postSession = async ( req, res ) => {
+//     try {
+//         if ( !req.user ) {
+//             return res.status ( 401 ).send ( `${ CustomError.Unauthorized ()}` );
+//         }
+//         sessionUser(req);
+//         const token = generateToken ( req.user );
+//         res.cookie ( "jwtCookie", token, {
+//             maxAge: 43200000
+//         })
+//         return res.status ( 200 ).send ( req.user );
+//     } catch (error) {
+//         return res.status ( 500 ).send ( `${ CustomError.InternalServerError ()}` ); 
+//     }
+// };
 const postSession = async ( req, res ) => {
     try {
-        if ( !req.user ) {
-            return res.status ( 401 ).send ( `${ CustomError.Unauthorized ()}` );
+        if (!req.user) {
+            return res.status(401).send({ mensaje: "Invalidate user" })
         }
-        sessionUser(req);
-        const token = generateToken ( req.user );
-        res.cookie ( "jwtCookie", token, {
+
+        req.session.user = {
+            first_name: req.user.first_name,
+            last_name: req.user.last_name,
+            age: req.user.age,
+            email: req.user.email
+        }
+        const token = generateToken(req.user)
+        res.cookie('jwtCookie', token, {
             maxAge: 43200000
         })
-        return res.status ( 200 ).send ( req.user );
+        //Actualizamos la ultima conexion del usuario
+        await userModel.findByIdAndUpdate(req.user._id, { last_connection: Date.now() })
+        res.status(200).send({ payload: req.user })
     } catch (error) {
-        return res.status ( 500 ).send ( `${ CustomError.InternalServerError ()}` ); 
+        logger.error(`Error al iniciar sesion: ${error}`);
+        res.status(500).send({ mensaje: `Error al iniciar sesion ${error}` })
     }
-};
-// //add
-// const sessionRegister =  async (req, res) => {
-//     try {
-//         if (!req.user) {
-//             return res.status(400).send({ mensaje: 'Usuario ya existente' })
-//         }
-//         return res.status(200).send({ mensaje: 'Usuario creado' })
-//     } catch (error) {
-//         res.status(500).send({ mensaje: `Error al crear usuario ${error}` })
-//     }
-// }
+}
+
 const sessionRegister = async (req, res) => {
     try {
         if (!req.user) {
@@ -70,21 +84,6 @@ const getGithubSession = async (req, res) => {
 	req.session.user = req.user;
 	res.status(200).send({ mensaje: 'Sesión creada' });
 };
-
-// const getLogout = async ( req, res ) => {
-//     let userDat = {};
-//     if ( req.session.passport ) {
-//         userDat = req.session.passport.user;
-//         const sessionUser = await userModel.findById ( userDat );
-//         await sessionUser.updateLastConnection ();
-//         req.session.destroy ();
-//         return res.status ( 200 ).send ({ result: "Logout done successfully" });
-//     } else {
-//         return res.status ( 400 ).send ({ result: "No session active" });
-//     }
-// };
-
-//add
 
 const getLogout = async (req, res) => {
     if (req.session.user) {

@@ -4,11 +4,11 @@ import GithubStrategy from 'passport-github2'
 import jwt from 'passport-jwt'
 import { createHash, validatePassword } from '../utils/bcrypt.js'
 import userModel from '../models/users.models.js'
-import { generateUserErrorInfo } from '../services/errors/info.js';
-import CustomError from '../services/errors/CustomError.js';
-import EErrors from '../services/errors/enums.js';
+// import { generateUserErrorInfo } from '../services/errors/info.js';
+// import CustomError from '../services/errors/CustomError.js';
+// import EErrors from '../services/errors/enums.js';
 import logger from '../utils/loggers.js'
-
+import "dotenv"
 const localStrategy = local.Strategy
 const JWTStrategy = jwt.Strategy
 const ExtractJWT = jwt.ExtractJwt
@@ -16,8 +16,8 @@ const ExtractJWT = jwt.ExtractJwt
 const initializePassport = () => {
 
     const cookieExtractor = req => {
-        console.log(req.cookies)
-        const token = req.cookies ? req.cookies.jwtCookie : {}
+        // console.log(req.cookies)
+        const token = req.cookies ? req.cookies.jwtCookie : {};
         return token
     } 
    
@@ -26,7 +26,7 @@ const initializePassport = () => {
         secretOrKey: process.env.JWT_SECRET
     }, async (jwt_payload, done) => {
         try {
-            console.log(jwt_payload);
+            // console.log(jwt_payload);
             return done(null, jwt_payload) //contenido del token
         } catch (error) {
             logger.error(`[ERROR] - Date: ${new Date().toLocaleTimeString()} - ${error.message}`)
@@ -34,46 +34,6 @@ const initializePassport = () => {
         }
     }))
     
-    // passport.use('register', new localStrategy(
-    //     //done es como un res.status(), callback de respuesta
-    //     { passReqToCallback: true, usernameField: 'email' }, async (req, username, password, done) => {
-            
-    //         const { first_name, last_name, email, age } = req.body
-    //         if (!first_name || !last_name || !email || !age || !password) {
-    //             CustomError.createError({
-    //                 name: 'Error al crear usuario',
-    //                 cause: generateUserErrorInfo({
-    //                     first_name,
-    //                     last_name,
-    //                     email,
-    //                     age,
-    //                     password,
-    //                 }),
-    //                 message: 'Error al crear usuario',
-    //                 code: EErrors.MISSING_OR_INVALID_USER_DATA,
-    //             });
-    //         }
-    //         try {
-    //             const user = await userModel.findOne({ email: email })
-    //             if (user) {
-                    
-    //                 return done(null, false,)
-    //             }
-    //             const passwordHash = createHash(password)
-    //             const userCreated = await userModel.create({
-    //                 first_name: first_name,
-    //                 last_name: last_name,
-    //                 email: email,
-    //                 age: age,
-    //                 password: passwordHash
-    //             })
-    //             req.user = userCreated;
-    //             return done(null, userCreated)
-    //         } catch (error) {
-    //             return done(error)
-    //         }
-    //     }
-    // ))
     
     //add
     passport.use('register', new localStrategy(

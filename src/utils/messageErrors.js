@@ -7,9 +7,7 @@ export const passportError = strategy => {
 			}
 
 			if (!user) {
-				return res
-					.status(401)
-					.send({ error: info.messages ? info.messages : info.toString() }); 
+				return res.status(401).send({ error: info.messages ? info.messages : info.toString() }); 
 			}
 
 			req.user = user;
@@ -18,17 +16,23 @@ export const passportError = strategy => {
 	};
 };
 
-export const authorization = roles => {
-	return async (req, res, next) => {
-		if (!req.user) {
-			return res.status(401).send({ error: 'User no autorizado' });
-		}
 
-		const isAuthorized = roles.find(rol => rol == req.user.user.rol);
-		if (!isAuthorized) {
-			return res.status(403).send({ error: 'User no tiene los privilegios necesarios para realizar esta acción' });
-		}
+export const authorization = (role) => {
 
-		next();
-	};
-};
+    return async (req, res, next) => {
+        //Se vuelve a consultar si el usuario existe dado que: el token puede expirar
+        console.log(req.user);
+        if (!req.user) {
+            return res.status(401).send({ error: 'User no autorizado' })
+        }
+
+        //CICLO FOR PARA RECORRER EL ARRAY QUE CREAMOS CON LAS DISTINTAS FUNCIONES DE LOS USUARIOS
+        for (let i = 0; i < role.length; i++) {
+            if (req.user.role === role[i]) {
+                return next() //Retorno next si el usuario tiene alguno de los roles que le pasamos por parametro
+            }
+        }
+        //Si nada se cumple, retornamos un error 403
+        return res.status(403).send({ error: 'User no tiene los privilegios necesarios' })
+    }
+}
