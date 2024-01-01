@@ -17,22 +17,19 @@ export const passportError = strategy => {
 };
 
 
-export const authorization = (role) => {
+export const authorization = (rol) => {
 
     return async (req, res, next) => {
-        //Se vuelve a consultar si el usuario existe dado que: el token puede expirar
-        console.log(req.user);
+        
         if (!req.user) {
             return res.status(401).send({ error: 'User no autorizado' })
         }
 
-        //CICLO FOR PARA RECORRER EL ARRAY QUE CREAMOS CON LAS DISTINTAS FUNCIONES DE LOS USUARIOS
-        for (let i = 0; i < role.length; i++) {
-            if (req.user.role === role[i]) {
+        for (let i = 0; i < rol.length; i++) {
+            if (req.user.user.rol === rol[i]) {
                 return next() //Retorno next si el usuario tiene alguno de los roles que le pasamos por parametro
             }
         }
-        //Si nada se cumple, retornamos un error 403
         return res.status(403).send({ error: 'User no tiene los privilegios necesarios' })
     }
 }

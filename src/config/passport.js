@@ -4,38 +4,32 @@ import GithubStrategy from 'passport-github2'
 import jwt from 'passport-jwt'
 import { createHash, validatePassword } from '../utils/bcrypt.js'
 import userModel from '../models/users.models.js'
-// import { generateUserErrorInfo } from '../services/errors/info.js';
-// import CustomError from '../services/errors/CustomError.js';
-// import EErrors from '../services/errors/enums.js';
 import logger from '../utils/loggers.js'
-import "dotenv"
+import 'dotenv/config'
+
+
 const localStrategy = local.Strategy
 const JWTStrategy = jwt.Strategy
 const ExtractJWT = jwt.ExtractJwt
 
 const initializePassport = () => {
-
     const cookieExtractor = req => {
-        // console.log(req.cookies)
         const token = req.cookies ? req.cookies.jwtCookie : {};
-        return token
+        logger.info(token)
+        return token;
     } 
    
     passport.use('jwt', new JWTStrategy({
-        jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]), 
+        jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]),
         secretOrKey: process.env.JWT_SECRET
     }, async (jwt_payload, done) => {
         try {
-            // console.log(jwt_payload);
-            return done(null, jwt_payload) //contenido del token
+            return done ( null, jwt_payload );
         } catch (error) {
-            logger.error(`[ERROR] - Date: ${new Date().toLocaleTimeString()} - ${error.message}`)
-            return done(error)
+            return done ( error );
         }
-    }))
-    
-    
-    //add
+    }));
+
     passport.use('register', new localStrategy(
         { passReqToCallback: true, usernameField: 'email' }, async (req, username, password, done) => {
             //Defino como voy a registrar un user

@@ -1,7 +1,8 @@
+
 import productModel from '../models/products.models.js';
 import CustomError from '../services/errors/CustomError.js';
 import EErrors from '../services/errors/enums.js';
-import { generateProductErrorInfo } from '../services/errors/info.js';
+// import { generateProductErrorInfo } from '../services/errors/info.js';
 
 const getProducts = async (req, res) => {
 	const { limit, page, sort, category } = req.query;
@@ -42,38 +43,42 @@ const getProduct = async (req, res) => {
 		res.status(500).send({ error: `Error en consultar producto ${error}` });
 	}
 };
+		
 const postProduct = async (req, res) => {
-	const { title, description, code, price, stock, category } = req.body;
-	if ((!title, !description, !code, !price, !stock, !category)) {
-		CustomError.createError({
-			name: 'Error de creación de producto',
-			cause: generateProductErrorInfo({ title, description, code, price, stock, category }),
-			message: 'Error al crear producto',
-			code: EErrors.MISSING_OR_INVALID_PRODUCT_DATA,
-		});
-	}
 
-	try {
-		const product = await productModel.create({
-			title,
-			description,
-			code,
-			price,
-			stock,
-			category,
-		});
+    const { title, description, code, price, stock, category } = req.body
 
-		if (product) {
-			return res.status(201).send(product);
-		}
-	} catch (error) {
-		if (error.code == 11000) {
-			res.status(400).send({ error: `Llave duplicada` });
-		}
+    try {
 
-		return res.status(500).send({ error: `Error en consultar producto ${error}` });
-	}
-};
+        if (!title || !description || !code || !price || !stock || !category) {
+            CustomError.createError({
+                name: "Product creation error",
+                cause: generateProductErrorInfo({ title, description, price, stock, code, category }),
+                message: "One or more properties were incomplete or not valid.",
+                code: EErrors.INVALID_PRODUCT_ERROR
+            })
+        }
+       
+        const product = await productModel.create({ title, description, code, price, stock, category })
+
+        if (product) {
+            return res.status(201).send(product)
+        }
+
+        return res.status(404).send({ error: "Producto no encontrado" })
+
+    } catch (error) {
+        
+        next(error)
+        
+        if (error.code == 11000) {
+            return res.status(400).send({ error: `Llave duplicada` })
+        } else {
+            return res.status(500).send({ error: `Error en consultar producto ${error}` })
+        }
+        
+    }
+}
 const putProduct = async (req, res) => {
 	const { pid } = req.params;
 	const { title, description, code, price, stock, category } = req.body;

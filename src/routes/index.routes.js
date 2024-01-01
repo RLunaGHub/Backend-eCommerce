@@ -8,7 +8,7 @@ import routerHandlebars from './handlebars.routes.js';
 import routerMock from './mocks.routes.js';
 import routerMailing from './mail.routes.js';
 import routerTicket from './tickets.routes.js';
-import { logger } from '../utils/loggers.js';
+import logger from '../utils/loggers.js';
 
 const router = Router();
 
