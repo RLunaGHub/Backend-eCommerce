@@ -1,207 +1,236 @@
-import cartModel from '../models/carts.models.js';
-import productModel from '../models/products.models.js';
-import userModel from '../models/users.models.js';
-import { logger } from '../utils/loggers.js';
-const getCarts = async (req, res) => {
-	const { limit } = req.query;
-	try {
-		const carts = await cartModel.find().limit(limit);
-		res.status(200).send({ resultado: 'OK', message: carts });
-	} catch (error) {
-		res.status(400).send({ error: `Error al consultar carritos: ${error}` });
-	}
-};
-const getCart = async (req, res) => {
-	const { cid } = req.params;
-	try {
-		const cart = await cartModel.findById(cid);
-		cart
-			? res.status(200).send({ resultado: 'OK', message: cart })
-			: res.status(404).send({ resultado: 'Not Found', message: cart });
-	} catch (error) {
-		res.status(400).send({ error: `Error al consultar el carrito: ${error}` });
-	}
-};
-const purchaseCart = async (req, res) => {
-	const { cid } = req.params;
-	try {
-		const cart = await cartModel.findById(cid);
-		const products = await productModel.find();
+import cartModel from "../models/carts.models.js"
+import productModel from "../models/products.models.js"
+import ticketModel from "../models/tickets.models.js"
+import userModel from "../models/users.models.js"
+import mongoose from "mongoose"
 
-		if (cart) {
-			const user = await userModel.find({ cart: cart._id });
-			const email = user[0].email;
-			let amount = 0;
-			const purchaseItems = [];
-			cart.products.forEach(async item => {
-				const product = products.find(prod => prod._id == item.id_prod.toString());
-				if (product.stock >= item.quantity) {
-					amount += product.price * item.quantity;
-					product.stock -= item.quantity;
-					await product.save();
-					purchaseItems.push(product.title);
-				}
-				
-			});
-			if (user.rol === 'premium') {
-				amount *= 0.8;
-			}
-			await cartModel.findByIdAndUpdate(cid, { products: [] });
-			res.redirect(
-				`http://localhost:8080/api/tickets/create?amount=${amount}&email=${email}`
-			);
-		} else {
-			res.status(404).send({ resultado: 'Not Found', message: cart });
-		}
-	} catch (error) {
-		res.status(400).send({ error: `Error al consultar carrito: ${error}` });
-	}
-};
 
-const postCart = async (req, res) => {
-	try {
-		const respuesta = await cartModel.create({});
-		res.status(200).send({ resultado: 'OK', message: respuesta });
-	} catch (error) {
-		res.status(400).send({ error: `Error al crear el carrito: ${error}` });
-	}
-};
+export const getCarts = async (req, res) => {
+    try {
+        const carts = await cartModel.find()
+        res.status(200).send({ result: 'OK', message: carts })
+    } catch (error) {
+        logger.error(`[ERROR] - Date: ${new Date().toLocaleTimeString()} - ${error.message}`)
+        res.status(500).send({ error: `Error displaying carts:  ${error}` })
 
-const putProductToCart = async (req, res) => {
-	const { cid, pid } = req.params;
-	try {
-		const cart = await cartModel.findById(cid);
-		const product = await productModel.findById(pid);
+    }
+}
 
-		if (!product) {
-			res.status(404).send({ resultado: 'Product Not Found', message: product });
-			return false;
-		}
+export const getCart = async (req, res) => {
+    const { id } = req.params
+    try {
+        const cart = await cartModel.findById(id)
+        res.status(200).send({ result: 'OK', message: cart })
+    } catch (error) {
+        logger.error(`[ERROR] - Date: ${new Date().toLocaleTimeString()} - ${error.message}`)
+        res.status(404).send({ error: `Id cart not found:  ${error}` })
+    }
+}
 
-		if (product.stock === 0) {
-			logger.info(product.stock);
-			res.status(400).send({ error: `No hay stock disponible` });
-		}
+export const postCart = async (req, res) => {
+    const response = await cartModel.create(req.body)
+    try {
+        res.status(201).send({ result: 'Cart created succesfully', message: response })
+    } catch (error) {
+        logger.error(`[ERROR] - Date: ${new Date().toLocaleTimeString()} - ${error.message}`)
+        res.status(400).send({ error: `Cart already exist: ${error}` })
+    }
+}
 
-		if (cart) {
-			const productExists = cart.products.find(prod => prod.id_prod == pid);
+export const putCartWithProdsArray = async (req, res) => {
+    const { cid } = req.params
+    const arrayProds = req.body
+    try {
+        const cart = await cartModel.findById(cid)
+        if (!cart) {
+            res.status(404).send({ error: `Cart not found: ${error}` })
+            return
+        }
+        arrayProds.forEach(async (productData) => {
+            const { id_prod, quantity } = productData
+            const existingProduct = cart.products.find((product) =>
+                product.id_prod.equals(id_prod)
+            )
+            existingProduct
+                ? (existingProduct.quantity += quantity)
+                : cart.products.push({ id_prod, quantity })
+        })
+        await cart.save()
+        res.status(200).send({ result: 'OK', cart })
+    } catch (error) {
+        logger.error(`[ERROR] - Date: ${new Date().toLocaleTimeString()} - ${error.message}`)
+        res.status(500).send({ error: `Error updating cart: ${error}` })
+    }
+}
+//8888888
+export const addProductCart = async (req, res) => {
+    const { cid, pid } = req.params
+    const { quantity = 1 } = req.body
+    try {
+        const cart = await cartModel.findById(cid)
+        if (!cart) {
+            res.status(404).send({ result: `Id cart not found` })
+            return
+        }
+        let existingProduct = cart.products.find((prod) =>
+            prod.id_prod.equals(pid)
+        )
+        if (!existingProduct) {
+            existingProduct = { id_prod: pid, quantity: quantity }
+            cart.products.push(existingProduct)
+        } else {
+            existingProduct.quantity += quantity
+        }
+        await cart.save()
+        res.status(200).send({ result: 'OK', cart })
+    } catch (error) {
+        logger.error(`[ERROR] - Date: ${new Date().toLocaleTimeString()} - ${error.message}`)
+        res.status(400).send({ error: `Error adding product: ${error}` })
+    }
+}
 
-			if (!productExists) {
-				cart.products.push({ id_prod: product._id, quantity: 1 });
-			} else if (productExists.quantity < product.stock) {
-				productExists.quantity++;
-			} else {
-				return res.status(400).send({ error: `No hay stock suficiente` });
-			}
+export const putProdQty = async (req, res) => {
+    const { cid, pid } = req.params
+    const { quantity } = req.body
+    try {
+        const cart = await cartModel.findById(cid)
+        if (!cart) {
+            res.status(404).send({ result: `Id cart not found` })
+            return
+        }
+        const existingProduct = cart.products.find((prod) =>
+            prod.id_prod.equals(pid)
+        )
+        if (!existingProduct) {
+            res.status(404).send({ result: `Product not found in cart` })
+            return
+        }
+        existingProduct.quantity += quantity
+        await cart.save()
+        res.status(200).send({ result: 'OK', cart })
+    } catch (error) {
+        logger.error(`[ERROR] - Date: ${new Date().toLocaleTimeString()} - ${error.message}`)
+        res.status(400).send({ error: `Error updating product qty: ${error}` })
+    }
+}
 
-			await cart.save();
-			return res.status(200).send({ resultado: 'OK', message: cart });
-		} else {
-			res.status(404).send({ resultado: 'Cart Not Found', message: cart });
-		}
-	} catch (error) {
-		res.status(400).send({ error: `Error al crear producto: ${error}` });
-	}
-};
+export const deleteProdOnCart = async (req, res) => {
+    const { cid, pid } = req.params
+    try {
+        const cart = await cartModel.findById(cid)
+        if (cart) {
+            const productIndex = cart.products.findIndex(prod => prod.id_prod.equals(new mongoose.Types.ObjectId(pid)))
+            let deletedProduct
+            if (productIndex !== -1) {
+                deletedProduct = cart.products[productIndex]
+                cart.products.splice(productIndex, 1)
+            } else {
+                res.status(404).send({ result: 'Id Product Not Found', message: cart })
+            }
+            await cart.save()
+            res.status(200).send({ result: 'OK', message: deletedProduct })
+        } else {
+            res.status(404).send({ result: 'Cart Not Found', message: cart })
+        }
+    } catch (error) {
+        logger.error(`[ERROR] - Date: ${new Date().toLocaleTimeString()} - ${error.message}`)
+        res.status(400).send({ error: `Error deleting product: ${error}` })
+    }
+}
 
-const putQuantity = async (req, res) => {
-	const { cid, pid } = req.params;
-	const { quantity } = req.body;
-	const product = await productModel.findById(pid);
+export const emptyCart = async (req, res) => {
+    const { id } = req.params
+    try {
+        const cart = await cartModel.findById(id)
+        if (!cart) {
+            res.status(404).send({ result: 'Cart not found', message: cart })
+        }
+        cart.products = []
+        await cart.save()
+        res.status(200).send({ result: 'OK', message: cart })
+    } catch (error) {
+        logger.error(`[ERROR] - Date: ${new Date().toLocaleTimeString()} - ${error.message}`)
+        res.status(400).send({ error: `Error empitying cart: ${cart}` })
+    }
+}
 
-	if (product.stock < productExists.quantity + quantity) {
-		res.status(400).send({ error: `No hay stock suficiente` });
-	}
+export const purchase = async (req, res) => {
+    const { cid } = req.params
+    try {
+        const cart = await cartModel.findById(cid)
+        const products = await productModel.find()
+        const user = await userModel.find({ cart: cart._id })
+        const purchaserEmail = user[0].email
+        const userRole = req.user.role || req.user.user.role
 
-	try {
-		const cart = await cartModel.findById(cid);
+        if (!cart) {
+            return res.status(404).send({ result: 'Cart not found', message: cart })
+        }
 
-		if (cart) {
-			const productExists = cart.products.find(prod => prod.id_prod == pid);
-			if (productExists) {
-				productExists.quantity += quantity;
-			} else {
-				res.status(404).send({ resultado: 'Product Not Found', message: cart });
-				return;
-			}
-			await cart.save();
-			res.status(200).send({ resultado: 'OK', message: cart });
-		} else {
-			res.status(404).send({ resultado: 'Cart Not Found', message: cart });
-		}
-	} catch (error) {
-		res.status(400).send({ error: `Error al agregar los productos: ${error}` });
-	}
-};
-const putProductsToCart = async (req, res) => {
-	const { cid } = req.params;
-	const { updateProducts } = req.body;
+        const promises = cart.products.map(async (item) => {
+            const product = await productModel.findById(item.id_prod)
+            if (!product) {
+                throw new Error('Product not found')
+            }
 
-	try {
-		const cart = await cartModel.findById(cid);
-		updateProducts.forEach(prod => {
-			const productExists = cart.products.find(cartProd => cartProd.id_prod == prod.id_prod);
-			if (productExists) {
-				productExists.quantity += prod.quantity;
-			} else {
-				cart.products.push(prod);
-			}
-		});
-		await cart.save();
-		cart
-			? res.status(200).send({ resultado: 'OK', message: cart })
-			: res.status(404).send({ resultado: 'Not Found', message: cart });
-	} catch (error) {
-		res.status(400).send({ error: `Error al agregar los productos: ${error}` });
-	}
-};
-const deleteCart = async (req, res) => {
-	const { cid } = req.params;
-	try {
-		const cart = await cartModel.findByIdAndUpdate(cid, { products: [] });
-		cart
-			? res.status(200).send({ resultado: 'OK', message: cart })
-			: res.status(404).send({ resultado: 'Not Found', message: cart });
-	} catch (error) {
-		res.status(400).send({ error: `Error al vaciar el carrito: ${error}` });
-	}
-};
+            if (product.stock >= item.quantity) {
+                product.stock -= item.quantity
+                await product.save()
 
-const deleteProductFromCart = async (req, res) => {
-	const { cid, pid } = req.params;
+                // Discount for user "premium"
+                let discount = 1.0;
+                if (userRole === 'premium') {
+                    discount = 0.8
+                }
 
-	try {
-		const cart = await cartModel.findById(cid);
-		if (cart) {
-			const productIndex = cart.products.findIndex(prod => prod.id_prod == pid);
-			let deletedProduct;
-			if (productIndex !== -1) {
-				deletedProduct = cart.products[productIndex];
-				cart.products.splice(productIndex, 1);
-			} else {
-				res.status(404).send({ resultado: 'Product Not Found', message: cart });
-				return;
-			}
-			await cart.save();
-			res.status(200).send({ resultado: 'OK', message: deletedProduct });
-		} else {
-			res.status(404).send({ resultado: 'Cart Not Found', message: cart });
-		}
-	} catch (error) {
-		res.status(400).send({ error: `Error al eliminar el producto del carrito: ${error}` });
-	}
-};
+                return {
+                    productId: product._id,
+                    quantity: item.quantity,
+                    price: product.price * discount,
+                }
+            }
+            return null // Returns null if the product does not have enough stock
+        })
+
+        const results = await Promise.all(promises)
+        const prodsToPurchase = results.filter((result) => result !== null)
+        console.log(`Products to purchase: ${JSON.stringify(prodsToPurchase)}`)
+
+        if (prodsToPurchase.length === 0) {
+            return res.status(400).send({ result: 'No products to purchase' })
+        }
+
+        const purchase = {
+            items: prodsToPurchase,
+            total: prodsToPurchase.reduce((acc, product) => {
+                return acc + product.price * product.quantity
+            }, 0),
+        }
+
+        const ticket = {
+            amount: purchase.total,
+            purchaser: purchaserEmail
+        }
+        await ticketModel.create(ticket)
+        console.log(`Successful purchase, your total to pay is: $${ticket.amount}`)
+        await cartModel.findByIdAndUpdate(cid, { products: [] })
+        return res.status(200).send({ message: "Successful purchase" })
+    } catch (error) {
+        logger.error(`[ERROR] - Date: ${new Date().toLocaleTimeString()} - ${error.message}`)
+        return res.status(500).send({ error: `Error processing the purchase: ${error.message}` })
+    }
+}
 
 const cartsController = {
 	getCarts,
 	getCart,
 	postCart,
-	putProductsToCart,
-	putProductToCart,
-	putQuantity,
-	deleteCart,
-	deleteProductFromCart,
-	purchaseCart,
+	putCartWithProdsArray,
+	addProductCart,
+	putProdQty,
+	deleteProdOnCart,
+	emptyCart,
+	purchase,
 };
 
 export default cartsController;
