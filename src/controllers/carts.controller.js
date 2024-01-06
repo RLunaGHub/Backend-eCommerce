@@ -170,57 +170,28 @@ export const addProductCart = async (req, res) => {
 	}
 };
 
-
-
-// export const putProdQty = async (req, res) => {
-//     const { cid, pid } = req.params
-//     const { quantity } = req.body
-//     try {
-//         const cart = await cartModel.findById(cid)
-//         if (!cart) {
-//             res.status(404).send({ result: `Id cart not found` })
-//             return
-//         }
-//         const existingProduct = cart.products.find((prod) =>
-//             prod.id_prod.equals(pid)
-//         )
-//         if (!existingProduct) {
-//             res.status(404).send({ result: `Product not found in cart` })
-//             return
-//         }
-//         existingProduct.quantity += quantity
-//         await cart.save()
-//         res.status(200).send({ result: 'OK', cart })
-//     } catch (error) {
-//         logger.error(`[ERROR] - Date: ${new Date().toLocaleTimeString()} - ${error.message}`)
-//         res.status(400).send({ error: `Error updating product qty: ${error}` })
-//     }
-// }
 export const putProdQty = async (req, res) => {
-    const { cid, pid } = req.params;
-	const { quantity } = req.body;
-	const product = await productModel.findById(pid);
+    try {
+        const { quantity } = req.body;
+        const { cid, pid } = req.params;
 
-	try {
-		const cart = await cartModel.findById(cid);
+        const cart = await cartsModel.findById(cid);
+        const findIndex = cart.products.findIndex(product => product.id_prod._id.equals(pid));
 
-		if (cart) {
-			const productExists = cart.products.find(prod => prod.id_prod == pid);
-			if (productExists) {
-				productExists.quantity += quantity;
-			} else {
-				res.status(404).send({ resultado: 'Product Not Found', message: cart });
-				return;
-			}
-			await cart.save();
-			res.status(200).send({ resultado: 'OK', message: cart });
-		} else {
-			res.status(404).send({ resultado: 'Cart Not Found', message: cart });
-		}
-	} catch (error) {
-		res.status(400).send({ error: `Error al agregar productos: ${error}` });
-	}
-};
+        if (findIndex !== -1) {
+            cart.products[findIndex].quantity = quantity;
+        } else {
+            cart.products.push({ id_prod: pid, quantity: quantity });
+        }
+
+        await cart.save();
+        cart ? res.status(200).send({ resultado: 'OK', message: cart })
+            : res.status(404).send({ error: `Carrito no encontrado: ${error}` });
+    }
+    catch (error) {
+        res.status(400).send({ error: `Error al agregar producto al carrito: ${error}` });
+    }
+}
 
 
 
