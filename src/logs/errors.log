@@ -1,0 +1,2 @@
+{"level":"error","message":"Error al iniciar sesion: Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client","timestamp":"2024-01-06T20:35:27.663Z"}
+{"level":"error","message":"Error al iniciar sesion: Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client","timestamp":"2024-01-06T21:20:16.802Z"}

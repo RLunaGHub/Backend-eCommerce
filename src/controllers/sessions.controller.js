@@ -2,26 +2,12 @@ import { generateToken } from '../utils/jwt.js';
 import userModel from '../models/users.models.js';
 import logger from '../utils/loggers.js';
 
+// //new 6-1-24
 // const sessionUser = (req) => {
 //     const { first_name, last_name, email, age } = req.user;
 //     req.session.user = { first_name, last_name, email, age };
 // }
 
-// const postSession = async ( req, res ) => {
-//     try {
-//         if ( !req.user ) {
-//             return res.status ( 401 ).send ( `${ CustomError.Unauthorized ()}` );
-//         }
-//         sessionUser(req);
-//         const token = generateToken ( req.user );
-//         res.cookie ( "jwtCookie", token, {
-//             maxAge: 43200000
-//         })
-//         return res.status ( 200 ).send ( req.user );
-//     } catch (error) {
-//         return res.status ( 500 ).send ( `${ CustomError.InternalServerError ()}` ); 
-//     }
-// };
 const postSession = async ( req, res ) => {
     try {
         if (!req.user) {
@@ -38,9 +24,11 @@ const postSession = async ( req, res ) => {
         res.cookie('jwtCookie', token, {
             maxAge: 43200000
         })
-        //Actualizamos la ultima conexion del usuario
+        
         await userModel.findByIdAndUpdate(req.user._id, { last_connection: Date.now() })
+       
         res.status(200).send({ payload: req.user })
+        
     } catch (error) {
         logger.error(`Error al iniciar sesion: ${error}`);
         res.status(500).send({ mensaje: `Error al iniciar sesion ${error}` })
@@ -60,7 +48,9 @@ const sessionRegister = async (req, res) => {
             role: req.user.role
         }
         res.status(200).send({ payload: req.user })
+         
     }
+    
     catch (error) {
         logger.error(`Error al registrar usuario: ${error}`);
         res.status(500).send({ mensaje: `Error al registrar usuario ${error}` });

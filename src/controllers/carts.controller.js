@@ -102,36 +102,6 @@ export const putCartWithProdsArray = async (req, res) => {
 //     }
 // }
 
-
-
-
-
-//last 
-// export const addProductCart = async (req, res) => {
-//     const { cid, pid } = req.params
-//     const { quantity = 1 } = req.body
-//     try {
-//         const cart = await cartModel.findById(cid)
-//         if (!cart) {
-//             res.status(404).send({ result: `Id cart not found` })
-//             return
-//         }
-//         let existingProduct = cart.products.find((prod) =>
-//             prod.id_prod.equals(pid)
-//         )
-//         if (!existingProduct) {
-//             existingProduct = { id_prod: pid, quantity: quantity }
-//             cart.products.push(existingProduct)
-//         } else {
-//             existingProduct.quantity += quantity
-//         }
-//         await cart.save()
-//         res.status(200).send({ result: 'OK', cart })
-//     } catch (error) {
-//         logger.error(`[ERROR] - Date: ${new Date().toLocaleTimeString()} - ${error.message}`)
-//         res.status(400).send({ error: `Error adding product: ${error}` })
-//     }
-// }
 export const addProductCart = async (req, res) => {
     const { cid, pid } = req.params;
 

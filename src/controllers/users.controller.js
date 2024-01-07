@@ -112,6 +112,30 @@ const uploadDocuments = async (req, res) => {
 	}
 };
 
+
+//inactiva users
+const deleteInactiveUsers = async (req, res) => {
+    try {
+        const inactiveUsers = await userModel.find({
+            last_connection: { $lt: new Date(Date.now() - 48 * 60 * 60 * 1000 ) }
+        })
+        if (inactiveUsers.length > 0) {
+            //Get cartId associated with inactive users
+            const cartIds = inactiveUsers.map(user => user.cart)
+            //Delete associated carts
+            await cartModel.deleteMany({ _id: { $in: cartIds } })
+            //Delete inactive users
+            await userModel.deleteMany({ _id: { $in: inactiveUsers.map(user => user._id) } })
+            return res.status(200).send('Inactive users and their carts deleted succesfully')
+        } else {
+            return res.status(404).send('No inactive users found')
+        }
+    } catch (error) {
+        logger.error(`[ERROR] - Date: ${new Date().toLocaleTimeString()} - ${error.message}`)
+        res.status(500).send({ message: `Error deleting inactive users: ${error}` })
+    }
+}
+
 const usersController = {
 	getUser,
 	postUser,
@@ -119,6 +143,7 @@ const usersController = {
 	passwordReset,
 	deleteUser,
 	uploadDocuments,
+	deleteInactiveUsers,
 };
 
 export default usersController;
