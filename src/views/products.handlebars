@@ -11,3 +11,15 @@
 	<span id='page-number'></span>
 	<button id='next-page-button'>Next</button>
 </section>
+
+{{!-- 8/1/24 --}}
+
+<div class="purchase">
+    <button id="finalizarCompra">Finalizar Compra</button>
+    <button id="agregarProductos">Carrito</button>
+</div>
+{{#each prods}}
+<div>
+    <p> <b>{{this.title}}</b> - - {{this.description}} - - U$D {{this.price}} + IVA  <button class="addToCart" price="{{this.price}}" idProd="{{this._id}}">Agregar al carrito</button> 
+</div>
+{{/each}}

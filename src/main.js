@@ -17,9 +17,24 @@ import routerHandlebars from './routes/handlebars.routes.js';
 import { logger } from './utils/loggers.js'; 
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUiExpress from 'swagger-ui-express';
+import cors from 'cors'
 
 const app = express();
 const PORT = 8080;
+
+
+const withelist = ['http://localhost:5173']
+const corsOptions = {
+	origin: function (origin, callback) {
+		if (withelist.indexOf(origin) != -1 || !origin) { //Existe dentro de whitelist
+			callback(null, true)
+		} else {
+			callback(new Error("Acceso denegado"))
+		}
+	}
+  }
+  
+  app.use(cors(corsOptions))
 
 const swaggerOptions = {
 	definition: {
@@ -75,6 +90,11 @@ initializePassport();
 app.use(passport.initialize());
 app.use(passport.session());
 
+//latest
+app.use(cors());
+app.get("/", function (req, res) {
+	res.status(200).sendFile("index.html");
+});
 
 await mongoose
 	.connect(process.env.MONGO_URL)
