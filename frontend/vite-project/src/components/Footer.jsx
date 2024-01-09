@@ -3,9 +3,9 @@ const Footer = () => {
     <footer>
       <div className="footer_logo">
         <img
-          id="horizontal_logo"
+          id="logo_mercadopago"
           alt="image of the logo"
-          src="../img/horizontal_logo.png"
+          src="../img/logo_mercadopago.png"
         />
       </div>
       <div className="footer_text">

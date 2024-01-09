@@ -12,7 +12,7 @@ export const Register = () => {
     console.log(data);
 
     const response = await fetch(
-      "http://localhost:4000/api/sessions/register",
+      "http://localhost:8080/api/sessions/register",
       {
         method: "POST",
         headers: {
