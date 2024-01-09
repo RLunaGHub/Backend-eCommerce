@@ -18,6 +18,7 @@ import { logger } from './utils/loggers.js';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUiExpress from 'swagger-ui-express';
 import cors from 'cors'
+import mercadopago from 'mercadopago'
 
 const app = express();
 const PORT = 8080;
@@ -136,6 +137,13 @@ io.on('connection', socket => {
 		socket.emit('mensajes', messages);
 	});
 });
+
+
+// REPLACE WITH YOUR ACCESS TOKEN AVAILABLE IN: https://developers.mercadopago.com/panel
+mercadopago.configure({
+	access_token: "TEST-6876500445689791-010821-ac8a4a49bb37e21ace37138649971b88-1630540852",
+});
+
 
 app.use('/static', express.static(path.join(_dirname, "/public")));
 app.use('/static', routerHandlebars);
