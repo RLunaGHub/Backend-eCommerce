@@ -24,18 +24,18 @@ const app = express();
 const PORT = 8080;
 
 
-const withelist = ['http://localhost:5173']
-const corsOptions = {
-	origin: function (origin, callback) {
-		if (withelist.indexOf(origin) != -1 || !origin) { //Existe dentro de whitelist
-			callback(null, true)
-		} else {
-			callback(new Error("Acceso denegado"))
-		}
-	}
-  }
+// const withelist = ['http://localhost:5173']
+// const corsOptions = {
+// 	origin: function (origin, callback) {
+// 		if (withelist.indexOf(origin) != -1 || !origin) { //Existe dentro de whitelist
+// 			callback(null, true)
+// 		} else {
+// 			callback(new Error("Acceso denegado"))
+// 		}
+// 	}
+//   }
   
-  app.use(cors(corsOptions))
+//   app.use(cors(corsOptions))
 
 const swaggerOptions = {
 	definition: {
@@ -91,11 +91,11 @@ initializePassport();
 app.use(passport.initialize());
 app.use(passport.session());
 
-//latest
-app.use(cors());
-app.get("/", function (req, res) {
-	res.status(200).sendFile("index.html");
-});
+// //latest
+// app.use(cors());
+// app.get("/", function (req, res) {
+// 	res.status(200).sendFile("index.html");
+// });
 
 await mongoose
 	.connect(process.env.MONGO_URL)
@@ -140,9 +140,9 @@ io.on('connection', socket => {
 
 
 // REPLACE WITH YOUR ACCESS TOKEN AVAILABLE IN: https://developers.mercadopago.com/panel
-mercadopago.configure({
-	access_token: "TEST-6876500445689791-010821-ac8a4a49bb37e21ace37138649971b88-1630540852",
-});
+// mercadopago.configure({
+// 	access_token: "TEST-6876500445689791-010821-ac8a4a49bb37e21ace37138649971b88-1630540852",
+// });
 
 
 app.use('/static', express.static(path.join(_dirname, "/public")));

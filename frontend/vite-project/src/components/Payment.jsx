@@ -40,7 +40,7 @@ const Payment = () => {
                 ${orderData.price}
               </span>
               <p className="item-name">
-                Apple Iphone 15 pro max{" "}
+                Vino vino{" "}
                 <span id="summary-quantity">{orderData.quantity}</span>
               </p>
             </div>

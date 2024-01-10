@@ -1,4 +1,4 @@
-<h1>Products</h1>
+{{!-- <h1>Products</h1>
 <h2 id='bienvenida'>Bienvenido {{user.first_name}} {{user.last_name}}</h2>
 <p>Edad: {{user.age}}</p>
 <p>Email: {{user.email}}</p>
@@ -22,4 +22,23 @@
 <div>
     <p> <b>{{this.title}}</b> - - {{this.description}} - - U$D {{this.price}} + IVA  <button class="addToCart" price="{{this.price}}" idProd="{{this._id}}">Agregar al carrito</button> 
 </div>
-{{/each}}
+{{/each}} --}}
+
+<h1 id='bienvenida'>Bienvenido {{user.first_name}} {{user.last_name}}</h1>
+
+<p>Edad: {{user.age}}</p>
+<p>Email: {{user.email}}</p>
+<p>Rol: {{user.rol}}</p>
+<p id='cart-ID'>CartId: {{user.cart}}</p>
+
+<button id='logout-button'>Logout</button>
+<button id='purchase-button' disabled>Finalizar Compra</button>
+
+<h2>Products</h2>
+
+<section id='products-container'></section>
+<section class='pagination'>
+	<button id='prev-page-button'>Prev</button>
+	<span id='page-number'></span>
+	<button id='next-page-button'>Next</button>
+</section>

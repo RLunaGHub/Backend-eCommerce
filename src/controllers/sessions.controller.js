@@ -25,10 +25,15 @@ const postSession = async ( req, res ) => {
             maxAge: 43200000
         })
         
-        await userModel.findByIdAndUpdate(req.user._id, { last_connection: Date.now() })
-       
-        res.status(200).send({ payload: req.user })
-        
+        const user = await userModel.findOne({ email: req.user.email });
+		user.last_connection = Date.now();
+		await user.save();
+		req.session.user = user;
+
+
+        // res.status(200).send({ payload: req.user })
+        //last
+        res.status(200).redirect('http://localhost:8080/static/products');
     } catch (error) {
         logger.error(`Error al iniciar sesion: ${error}`);
         res.status(500).send({ mensaje: `Error al iniciar sesion ${error}` })
