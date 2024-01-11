@@ -19,6 +19,8 @@ const customOptionsLevels = {
     }
 };
 
+winston.addColors(customLevelsOptions.colors);
+
 export const logger = winston.createLogger({
     levels: customOptionsLevels.levels,
     transports: [

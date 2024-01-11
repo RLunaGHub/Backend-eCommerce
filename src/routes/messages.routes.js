@@ -5,7 +5,6 @@ import { authorization, passportError } from '../utils/messageErrors.js';
 const routerMessage = Router();
 
 routerMessage.get('/', messagesController.getMessages);
-
 routerMessage.post(
 	'/',
 	passportError('jwt'),

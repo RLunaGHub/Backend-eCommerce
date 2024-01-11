@@ -27,7 +27,7 @@ export const authorization = (rol) => {
 
         for (let i = 0; i < rol.length; i++) {
             if (req.user.user.rol === rol[i]) {
-                return next() //Retorno next si el usuario tiene alguno de los roles que le pasamos por parametro
+                return next() 
             }
         }
         return res.status(403).send({ error: 'User no tiene los privilegios necesarios' })

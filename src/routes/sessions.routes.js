@@ -5,7 +5,6 @@ import sessionController from '../controllers/sessions.controller.js';
 const routerSession = Router();
 
 routerSession.post('/login', passport.authenticate('login'), sessionController.postSession);
-//add
 routerSession.post('/register', passport.authenticate('register'), sessionController.sessionRegister);
 routerSession.get('/current', passportError('jwt'), sessionController.getCurrentSession);
 routerSession.get(
