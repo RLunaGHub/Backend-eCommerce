@@ -17,8 +17,8 @@ import routerHandlebars from './routes/handlebars.routes.js';
 import { logger } from './utils/loggers.js'; 
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUiExpress from 'swagger-ui-express';
-import cors from 'cors'
-import mercadopago from 'mercadopago'
+// import cors from 'cors'
+// import mercadopago from 'mercadopago'
 
 const app = express();
 const PORT = 8080;
