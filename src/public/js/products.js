@@ -3,10 +3,22 @@ const pageNumber = document.querySelector('#page-number');
 const previousButton = document.querySelector('#prev-page-button');
 const nextButton = document.querySelector('#next-page-button');
 const mensaje = document.querySelector('#bienvenida');
+const purchaseButton = document.querySelector('#purchase-button');
 const logoutButton = document.querySelector('#logout-button');
+const cartId = document.querySelector('#cart-ID').innerText.split(' ')[1];
 
 let page = 1;
-let cartId;
+
+async function showPurchaseButton() {
+	const res = await fetch(`http://localhost:8080/api/carts/${cartId}`);
+	const data = await res.json();
+	const hayProductos = data.message.products.length >= 1;
+	if (hayProductos) {
+		purchaseButton.disabled = false;
+	} else {
+		purchaseButton.disabled = true;
+	}
+}
 
 async function getProducts(URL, page) {
 	let urlFetch = URL;
@@ -14,9 +26,8 @@ async function getProducts(URL, page) {
 	if (page) {
 		urlFetch += `?page=${page}`;
 	}
-
-	const res = await (await fetch(urlFetch)).json();
-	const data = await res.message;
+	const res = await fetch(urlFetch);
+	const data = await res.json();
 	const products = data.docs;
 	productsContainer.innerHTML = '';
 	products.forEach(prod => {
@@ -49,23 +60,13 @@ async function getProducts(URL, page) {
 		button.addEventListener('click', async e => {
 			const pid = e.target.id;
 
-			try {
-				if (cartId) {
-					addProduct(cartId, pid);
-				} else {
-					const res = await fetch('http://localhost:8080/api/carts', {
-						method: 'POST',
-						body: JSON.stringify({}),
-					});
-					const data = await res.json();
-					cartId = data.message._id;
-					addProduct(cartId, pid);
-					console.log(data);
-				}
+			const data = await addProduct(cartId, pid);
+			if (data.resultado === 'OK') {
+				showPurchaseButton();
 				Swal.fire({
-					title: 'Producto agregado',
+					title: `Producto agregado`,
 				});
-			} catch (error) {
+			} else {
 				Swal.fire({
 					title: `Error al agregar producto: ${error}`,
 				});
@@ -76,11 +77,12 @@ async function getProducts(URL, page) {
 
 async function addProduct(cartId, pid) {
 	const res = await fetch(`http://localhost:8080/api/carts/${cartId}/product/${pid}`, {
-		method: 'PUT',
+		method: 'POST',
 		body: JSON.stringify({}),
 	});
 	const data = await res.json();
-	}
+	return data;
+}
 
 previousButton.addEventListener('click', async () => {
 	page--;
@@ -104,4 +106,24 @@ logoutButton.addEventListener('click', async () => {
 	}
 });
 
+purchaseButton.addEventListener('click', async () => {
+	const res = await fetch(`http://localhost:8080/api/carts/${cartId}/purchase`, {
+		method: 'POST',
+		body: JSON.stringify({}),
+	});
+	const data = await res.json();
+	Swal.fire({
+		title: '¡Compra finalizada!',
+		html: `
+    Su número de ticket es: <b>${data.mensaje.ticketGenerado.code}</b><br>
+    El valor de su compra es: ${data.mensaje.ticketGenerado.amount}
+		`,
+
+		icon: 'success',
+	});
+	showPurchaseButton();
+});
+
 getProducts('http://localhost:8080/api/products', page);
+
+showPurchaseButton();

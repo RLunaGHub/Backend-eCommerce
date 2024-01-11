@@ -1,5 +1,5 @@
-.container {
-	width: 500px;
-	margin-bottom: 10px;
-	border-bottom: 2px solid black;
+.product-container {
+	width: 400px;
+	margin-bottom: 8px;
+	border-bottom: 1px solid black;
 }

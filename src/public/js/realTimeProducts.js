@@ -16,12 +16,13 @@ form.addEventListener('submit', event => {
 	socket.emit('newProduct', product);
 });
 
-socket.on('products', products => {
+socket.on('products', data => {
 	const products = data.docs;
+
 	productsContainer.innerHTML = '';
 	products.forEach(prod => {
 		productsContainer.innerHTML += `
-    <div class="container">
+    <div class="product-container">
       <p>Title: ${prod.title}</p>
       <p>Description: ${prod.description}</p>
       <p>Category: ${prod.category}</p>

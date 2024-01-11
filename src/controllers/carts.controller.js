@@ -4,7 +4,7 @@ import productModel from "../models/products.models.js"
 import ticketModel from "../models/tickets.models.js"
 import userModel from "../models/users.models.js"
 import mongoose from "mongoose"
-
+import logger from "../utils/loggers.js"
 
 export const getCarts = async (req, res) => {
     try {
