@@ -10,7 +10,7 @@ socket.on('cartProducts', data => {
 	const title = document.createElement('h2');
 
 	if (!data) {
-		title.innerText = 'No seleccionaste ningún carrito';
+		title.innerText = 'No seleccionó ningún carrito';
 		cartContainer.appendChild(title);
 		return;
 	}

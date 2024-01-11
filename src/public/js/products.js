@@ -10,7 +10,8 @@ const cartId = document.querySelector('#cart-ID').innerText.split(' ')[1];
 let page = 1;
 
 async function showPurchaseButton() {
-	const res = await fetch(`http://localhost:8080/api/carts/${cartId}`);
+	const res = await fetch(`http://localhost:8080/api/carts
+	/${cartId}`);
 	const data = await res.json();
 	const hayProductos = data.message.products.length >= 1;
 	if (hayProductos) {

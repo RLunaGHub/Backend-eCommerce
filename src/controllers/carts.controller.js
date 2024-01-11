@@ -125,8 +125,6 @@ export const putProdQty = async (req, res) => {
     }
 }
 
-
-
 export const deleteProdOnCart = async (req, res) => {
     try {
         const { cid, pid } = req.params;
@@ -146,10 +144,6 @@ export const deleteProdOnCart = async (req, res) => {
         res.status(400).send({ error: `Error al eliminar producto del carrito: ${error}` });
     }
 }
-
-
-
-
 export const emptyCart = async (req, res) => {
     const { id } = req.params
     try {

@@ -13,7 +13,7 @@ cartRouter.put('/:cid/product/:pid', passportError('jwt'), authorization(['user'
 cartRouter.delete('/:cid/product/:pid', passportError('jwt'), authorization(['user', 'premium']), cartsController.deleteProdOnCart)
 cartRouter.delete('/:id', passportError('jwt'), authorization(['user', 'premium']), cartsController.emptyCart)
 cartRouter.post('/:cid', passportError('jwt'), authorization(['user', 'premium']), cartsController.purchase)
-
+cartRouter.post('/:cid/purchase', passportError('jwt'), authorization(['user', 'premium']),	cartsController.purchase);
 
 export default cartRouter
 

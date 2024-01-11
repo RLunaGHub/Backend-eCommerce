@@ -2,3 +2,12 @@
 {"level":"error","message":"Error al iniciar sesion: Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client","timestamp":"2024-01-06T21:20:16.802Z"}
 {"level":"error","message":"Error al iniciar sesion: Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client","timestamp":"2024-01-10T20:43:09.288Z"}
 {"level":"error","message":"[ERROR] - Date: 21:28:41 - Cast to ObjectId failed for value \"undefined\" (type string) at path \"_id\" for model \"carts\"","timestamp":"2024-01-11T00:28:41.519Z"}
+{"level":"error","message":"[ERROR] - Date: 22:16:55 - Cast to ObjectId failed for value \"undefined\" (type string) at path \"_id\" for model \"carts\"","timestamp":"2024-01-11T01:16:55.079Z"}
+{"level":"error","message":"[ERROR] - Date: 22:44:12 - Cast to ObjectId failed for value \"undefined\" (type string) at path \"_id\" for model \"carts\"","timestamp":"2024-01-11T01:44:12.262Z"}
+{"level":"error","message":"[ERROR] - Date: 22:49:25 - Cast to ObjectId failed for value \"undefined\" (type string) at path \"_id\" for model \"carts\"","timestamp":"2024-01-11T01:49:25.463Z"}
+{"level":"error","message":"[ERROR] - Date: 22:49:29 - Cast to ObjectId failed for value \"undefined\" (type string) at path \"_id\" for model \"carts\"","timestamp":"2024-01-11T01:49:29.547Z"}
+{"level":"error","message":"[ERROR] - Date: 22:52:59 - Cast to ObjectId failed for value \"undefined\" (type string) at path \"_id\" for model \"carts\"","timestamp":"2024-01-11T01:52:59.586Z"}
+{"level":"error","message":"[ERROR] - Date: 22:53:01 - Cast to ObjectId failed for value \"undefined\" (type string) at path \"_id\" for model \"carts\"","timestamp":"2024-01-11T01:53:01.083Z"}
+{"level":"error","message":"[ERROR] - Date: 22:53:02 - Cast to ObjectId failed for value \"undefined\" (type string) at path \"_id\" for model \"carts\"","timestamp":"2024-01-11T01:53:02.272Z"}
+{"level":"error","message":"[ERROR] - Date: 22:57:11 - Cast to ObjectId failed for value \"undefined\" (type string) at path \"_id\" for model \"carts\"","timestamp":"2024-01-11T01:57:11.156Z"}
+{"level":"error","message":"[ERROR] - Date: 23:04:13 - Cast to ObjectId failed for value \"undefined\" (type string) at path \"_id\" for model \"carts\"","timestamp":"2024-01-11T02:04:13.188Z"}
