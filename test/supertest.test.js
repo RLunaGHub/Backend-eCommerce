@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import chai from 'chai';
+import chai from 'chai';ses
 import supertest from 'supertest';
 import mongoose from 'mongoose';
 import logger from '../src/utils/loggers';
@@ -38,7 +38,7 @@ describe('App testing', () => {
 	it('Endpoint test /api/sessions/login, se espera que el usuario se loguee', async function () {
         this.timeout(5000)
 
-		const response = await requester.post('api/session/login').send(newUser)
+		const response = await requester.post('api/sessions/login').send(newUser)
         const { __body } = response
         const tokenResult = response.header['jwt-cookie'][0];
 
@@ -60,14 +60,14 @@ describe('App testing', () => {
     });
 
     it('Endpoint test /api/sessions/current, se espera la sesión del usuario actual', async function () {
-        const sessionData = await requester.get ( "/api/session/current" ).set ( "Cookie", token );
+        const sessionData = await requester.get ( "/api/sessions/current" ).set ( "Cookie", token );
         expect ( sessionData.status ).to.equal ( 200 );
         expect ( sessionData.body.user ).to.have.property ( "_id" ).to.be.a ( "string" );
             
     });
 
-	it ('Endpoint test /api/session/logout, se espera que cierre la sesión', async function () {
-		const terminate = await requester.get ( "/api/session/logout" );
+	it ('Endpoint test /api/sessions/logout, se espera que cierre la sesión', async function () {
+		const terminate = await requester.get ( "/api/sessions/logout" );
 		expect ( terminate.status ).to.equal ( 200 );
 		expect ( terminate.body ).to.have.property ( "result" ).to.be.a ( "string" );
 	});
