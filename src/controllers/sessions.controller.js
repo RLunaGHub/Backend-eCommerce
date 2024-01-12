@@ -83,7 +83,6 @@ const getGithubSession = async (req, res) => {
 const getLogout = async (req, res) => {
     if (req.session.user) {
         try {
-            //Actualizamos la ultima conexion del usuario
             await userModel.findByIdAndUpdate(req.session.user._id, { last_connection: Date.now() })
             req.session.destroy()
             res.clearCookie('jwtCookie')

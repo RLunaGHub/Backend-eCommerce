@@ -32,13 +32,11 @@ const initializePassport = () => {
 
     passport.use('register', new localStrategy(
         { passReqToCallback: true, usernameField: 'email' }, async (req, username, password, done) => {
-            //Defino como voy a registrar un user
             const { first_name, last_name, email, age, rol } = req.body
 
             try {
                 const user = await userModel.findOne({ email: email })
                 if (user) {
-                    //done es como si fuera un return de un callback
                     return done(null, false)
                 }
                 const passwordHash = createHash(password)

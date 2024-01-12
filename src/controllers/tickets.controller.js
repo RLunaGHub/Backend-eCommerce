@@ -7,7 +7,7 @@ const getTickets = async (req, res) => {
 
 		res.status(200).send({ response: response });
 	} catch (error) {
-		res.status(500).send({ mensaje: `Error al consultar tickets ${error}` });
+		res.status(500).send({ mensaje: `Error en la consulta de tickets ${error}` });
 	}
 };
 const createTicket = async (req, res) => {
@@ -20,7 +20,7 @@ const createTicket = async (req, res) => {
 		};
 		await ticketModel.create(ticket);
 		const ticketGenerado = await ticketModel.findOne({ code: ticket.code });
-		res.status(201).send({ response: 'Ticket generado con éxito', message: ticketGenerado });
+		res.status(201).send({ response: 'Ticket generado', message: ticketGenerado });
 	} catch (error) {
 		res.status(500).send({ mensaje: `Error al crear el ticket ${error}` });
 	}
